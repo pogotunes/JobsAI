@@ -3,6 +3,24 @@ import type { ScrapedOpportunity } from "./types";
 
 const ISRO_URL = "https://www.isro.gov.in/Careers.html";
 
+const RESULT_PATTERNS = [
+  /list of selected/i,
+  /list of provisionally/i,
+  /provisional selected/i,
+  /result for selection/i,
+  /second list/i,
+  /corrigendum/i,
+  /answer key/i,
+  /revised.*list/i,
+  /validity of the selection/i,
+  /extended upto/i,
+  /revised final/i,
+];
+
+function isResultOrNotice(title: string): boolean {
+  return RESULT_PATTERNS.some((p) => p.test(title));
+}
+
 function extractDeadline(text: string): string | null {
   const patterns = [
     /(\d{2}\.\d{2}\.\d{4})/,
@@ -79,6 +97,7 @@ export async function scrapeISRO(): Promise<ScrapedOpportunity[]> {
       const title = linkText || text.split("\n")[0].trim();
       if (!title || title.length < 15) return;
       if (title.includes("Home") || title.includes("Contact") || title.includes("Sitemap")) return;
+      if (isResultOrNotice(title)) return;
 
       const fullUrl = href
         ? href.startsWith("http")

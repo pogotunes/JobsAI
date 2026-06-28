@@ -3,6 +3,24 @@ import type { ScrapedOpportunity } from "./types";
 
 const DRDO_VACANCIES_URL = "https://drdo.gov.in/drdo/en/offerings/vacancies";
 
+const RESULT_PATTERNS = [
+  /list of selected/i,
+  /list of provisionally/i,
+  /provisional selected/i,
+  /result for selection/i,
+  /second list/i,
+  /corrigendum/i,
+  /answer key/i,
+  /revised.*list/i,
+  /validity of the selection/i,
+  /extended upto/i,
+  /revised final/i,
+];
+
+function isResultOrNotice(title: string): boolean {
+  return RESULT_PATTERNS.some((p) => p.test(title));
+}
+
 function extractDeadline(text: string): string | null {
   const patterns = [
     /(\d{2}\/\d{2}\/\d{4})/,
@@ -71,7 +89,6 @@ export async function scrapeDRDO(): Promise<ScrapedOpportunity[]> {
     const html = await res.text();
     const $ = cheerio.load(html);
 
-    // DRDO page uses .vacanciess-title for the title and .vacanciess-desc for description
     const titles = $(".vacanciess-title");
     titles.each((i, el) => {
       if (opportunities.length >= 20) return;
@@ -80,20 +97,17 @@ export async function scrapeDRDO(): Promise<ScrapedOpportunity[]> {
       if (!title || title.length < 15) return;
       if (title === "Vacancies" || title.includes("Breadcrumb")) return;
 
-      // Get description from sibling .vacanciess-desc
-      const descEl = $(el).next(".vacanciess-advertisment-no");
-      const descText = $(el).siblings(".vacanciess-desc").first().text().trim() || title;
+      if (isResultOrNotice(title)) return;
 
-      const deadline = extractDeadline(title + " " + descText);
-      const location = inferLocation(title + " " + descText);
+      const descText = $(el).siblings(".vacanciess-desc").first().text().trim() || title;
 
       opportunities.push({
         title,
         organization: "DRDO",
         category: inferCategory(title),
-        location,
+        location: inferLocation(title + " " + descText),
         stipend: null,
-        deadline,
+        deadline: extractDeadline(title + " " + descText),
         eligibility: null,
         description: descText.substring(0, 300),
         apply_link: DRDO_VACANCIES_URL,

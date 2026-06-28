@@ -1,5 +1,6 @@
 import Parser from "rss-parser";
 import type { ScrapedOpportunity } from "./types";
+import { isRelevantNews, cleanTitle } from "./utils";
 
 export interface NewsSourceConfig {
   name: string;
@@ -87,18 +88,25 @@ async function fetchRSSFeed(
       },
     });
     const feed = await parser.parseURL(feedUrl);
-    return feed.items.map((item) => ({
-      title: item.title || "Untitled",
-      summary: item.contentSnippet?.substring(0, 300) || null,
-      source,
-      source_url: item.link || null,
-      published_at: item.pubDate || item.isoDate || null,
-      image_url:
-        item.enclosure?.url ||
-        (item["media:content"] as any)?.$.url ||
-        null,
-      tags: defaultTags,
-    }));
+    const results: ParsedArticle[] = [];
+    for (const item of feed.items) {
+      const title = item.title || "Untitled";
+      const summary = item.contentSnippet?.substring(0, 300) || null;
+      if (!isRelevantNews(title, summary)) continue;
+      results.push({
+        title,
+        summary,
+        source,
+        source_url: item.link || null,
+        published_at: item.pubDate || item.isoDate || null,
+        image_url:
+          item.enclosure?.url ||
+          (item["media:content"] as any)?.$.url ||
+          null,
+        tags: defaultTags,
+      });
+    }
+    return results;
   } catch (error) {
     console.error(`Error fetching RSS feed ${feedUrl}:`, error);
     return [];

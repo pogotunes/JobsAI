@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import { supabaseAdmin, isConfigured } from "@/lib/supabase";
+import { supabaseAdmin, isAdminConfigured } from "@/lib/supabase";
 import { fetchAllNews, fetchOpportunitiesFromRSS } from "@/lib/scrapers/rss-parser";
 import { scrapeAllOpportunities } from "@/lib/scrapers/opportunity-scraper";
+import { cleanTitle, isRelevantNews } from "@/lib/scrapers/utils";
 
 export async function GET(request: NextRequest) {
-  if (!isConfigured) {
+  if (!isAdminConfigured) {
     return NextResponse.json(
       { error: "Database not configured." },
       { status: 503 }
@@ -33,22 +34,18 @@ export async function GET(request: NextRequest) {
       let newsSkipped = 0;
 
       for (const article of articles) {
-        const { data: existing } = await supabaseAdmin
-          .from("news_articles")
-          .select("id")
-          .eq("source_url", article.source_url)
-          .maybeSingle();
-
-        if (existing) {
+        if (!isRelevantNews(article.title, article.summary)) {
           newsSkipped++;
           continue;
         }
 
         const { error } = await supabaseAdmin
           .from("news_articles")
-          .insert([article]);
+          .upsert([article], { onConflict: "source_url", ignoreDuplicates: false })
+          .select();
 
         if (!error) newsInserted++;
+        else newsSkipped++;
       }
 
       result.news = {
@@ -66,37 +63,37 @@ export async function GET(request: NextRequest) {
       let oppSkipped = 0;
 
       for (const opp of allOpportunities) {
-        const { data: existing } = await supabaseAdmin
-          .from("opportunities")
-          .select("id")
-          .eq("source_url", opp.source_url)
-          .maybeSingle();
-
-        if (existing) {
+        if (!opp.source_url) {
           oppSkipped++;
           continue;
         }
+        const cleanedTitle = cleanTitle(opp.title, opp.organization);
 
         const { error } = await supabaseAdmin
           .from("opportunities")
-          .insert([
-            {
-              title: opp.title,
-              organization: opp.organization,
-              category: opp.category,
-              location: opp.location,
-              stipend: opp.stipend,
-              deadline: opp.deadline,
-              eligibility: opp.eligibility,
-              description: opp.description,
-              apply_link: opp.apply_link,
-              source_url: opp.source_url,
-              tags: opp.tags,
-              is_active: true,
-            },
-          ]);
+          .upsert(
+            [
+              {
+                title: cleanedTitle,
+                organization: opp.organization,
+                category: opp.category,
+                location: opp.location,
+                stipend: opp.stipend,
+                deadline: opp.deadline,
+                eligibility: opp.eligibility,
+                description: opp.description,
+                apply_link: opp.apply_link,
+                source_url: opp.source_url,
+                tags: opp.tags,
+                is_active: true,
+              },
+            ],
+            { onConflict: "source_url", ignoreDuplicates: false }
+          )
+          .select();
 
         if (!error) oppInserted++;
+        else oppSkipped++;
       }
 
       result.opportunities = {

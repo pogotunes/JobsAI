@@ -17,6 +17,7 @@ export async function GET(request: NextRequest) {
     const location = searchParams.get("location");
     const deadline = searchParams.get("deadline");
     const search = searchParams.get("search");
+    const verified = searchParams.get("verified");
 
     const today = new Date().toISOString().split("T")[0];
 
@@ -26,6 +27,10 @@ export async function GET(request: NextRequest) {
       .eq("is_active", true)
       .or(`deadline.gte.${today},deadline.is.null`)
       .order("created_at", { ascending: false });
+
+    if (verified === "true") {
+      query = query.eq("verification_status", "verified");
+    }
 
     if (category && category !== "All") {
       query = query.eq("category", category);

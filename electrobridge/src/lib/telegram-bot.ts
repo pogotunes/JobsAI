@@ -9,6 +9,10 @@ export async function postToTelegram(opportunity: Opportunity) {
     return;
   }
 
+  const detailUrl = opportunity.slug
+    ? `https://electrobridge.vercel.app/opportunities/${opportunity.slug}`
+    : `https://electrobridge.vercel.app/opportunities/${opportunity.id}`;
+
   const message = `
 🔬 *New Opportunity on ElectroBridge*
 
@@ -21,7 +25,7 @@ export async function postToTelegram(opportunity: Opportunity) {
 
 ${opportunity.tags?.map((t) => "#" + t.replace(/\s+/g, "_")).join(" ")}
 
-🔗 [View Details & Apply](https://electrobridge.vercel.app/opportunities/${opportunity.id})
+🔗 [View Details & Apply](${detailUrl})
 
 _ElectroBridge — Electronics & Semiconductor Opportunities_
   `;

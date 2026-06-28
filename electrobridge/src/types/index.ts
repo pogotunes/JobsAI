@@ -15,6 +15,15 @@ export interface Opportunity {
   posted_at?: string;
   apply_clicks?: number;
   tags: string[];
+  slug?: string;
+  org_slug?: string;
+  verification_status?: "verified" | "unverified" | "link_unavailable" | "expired";
+  verified_at?: string;
+  official_page_url?: string;
+  apply_link_type?: "direct" | "homepage" | "pdf" | "email" | "portal";
+  last_link_checked?: string;
+  link_check_status?: number;
+  admin_notes?: string;
 }
 
 export interface NewsArticle {
@@ -43,4 +52,22 @@ export interface SavedOpportunity {
   user_id: string;
   opportunity_id: string;
   created_at?: string;
+}
+
+export interface LinkCheckLog {
+  id?: string;
+  opportunity_id: string;
+  checked_at: string;
+  http_status: number;
+  is_reachable: boolean;
+  error_message: string;
+}
+
+export interface OpportunityReport {
+  id?: string;
+  opportunity_id: string;
+  report_type: "broken_link" | "wrong_info" | "expired" | "other";
+  description: string;
+  reported_at: string;
+  is_resolved: boolean;
 }

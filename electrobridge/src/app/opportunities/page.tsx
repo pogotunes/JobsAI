@@ -5,7 +5,7 @@ import type { Opportunity } from "@/types";
 import OpportunityCard from "@/components/OpportunityCard";
 import FilterBar from "@/components/FilterBar";
 import SearchBar from "@/components/SearchBar";
-import { Loader2 } from "lucide-react";
+import { Loader2, ShieldCheck, Eye, EyeOff } from "lucide-react";
 
 export default function OpportunitiesPage() {
   const [opportunities, setOpportunities] = useState<Opportunity[]>([]);
@@ -15,6 +15,7 @@ export default function OpportunitiesPage() {
   const [location, setLocation] = useState("All");
   const [deadline, setDeadline] = useState("All");
   const [search, setSearch] = useState("");
+  const [showUnverified, setShowUnverified] = useState(false);
 
   const fetchOpportunities = useCallback(async () => {
     setLoading(true);
@@ -26,6 +27,7 @@ export default function OpportunitiesPage() {
       if (location && location !== "All") params.set("location", location);
       if (deadline && deadline !== "All") params.set("deadline", deadline);
       if (search) params.set("search", search);
+      if (!showUnverified) params.set("verified", "true");
 
       const res = await fetch(`/api/opportunities?${params}`);
       const data = await res.json();
@@ -41,7 +43,7 @@ export default function OpportunitiesPage() {
     } finally {
       setLoading(false);
     }
-  }, [category, eligibility, location, deadline, search]);
+  }, [category, eligibility, location, deadline, search, showUnverified]);
 
   useEffect(() => {
     fetchOpportunities();
@@ -59,7 +61,26 @@ export default function OpportunitiesPage() {
       </div>
 
       <div className="space-y-4 mb-8">
-        <SearchBar onSearch={setSearch} />
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <div className="flex-1 max-w-md">
+            <SearchBar onSearch={setSearch} />
+          </div>
+          <button
+            onClick={() => setShowUnverified(!showUnverified)}
+            className={`inline-flex items-center gap-2 text-xs font-medium px-3 py-2 rounded-lg border transition-colors ${
+              showUnverified
+                ? "bg-amber-500/10 border-amber-500/30 text-amber-400"
+                : "bg-gray-800/50 border-gray-700 text-text-muted hover:text-text-primary"
+            }`}
+          >
+            {showUnverified ? (
+              <EyeOff className="w-3.5 h-3.5" />
+            ) : (
+              <ShieldCheck className="w-3.5 h-3.5" />
+            )}
+            {showUnverified ? "Hiding unverified" : "Show unverified"}
+          </button>
+        </div>
         <FilterBar
           selectedCategory={category}
           selectedEligibility={eligibility}
@@ -78,9 +99,12 @@ export default function OpportunitiesPage() {
         </div>
       ) : opportunities.length === 0 ? (
         <div className="text-center py-20">
+          <div className="w-16 h-16 bg-gray-800/50 rounded-full flex items-center justify-center mx-auto mb-4">
+            <ShieldCheck className="w-8 h-8 text-text-muted" />
+          </div>
           <p className="text-text-muted text-lg mb-2">No opportunities found.</p>
           <p className="text-text-muted text-sm">
-            Try adjusting your filters or check back later.
+            Try adjusting your filters, enable unverified listings, or check back later.
           </p>
           <button
             onClick={() => {
@@ -89,10 +113,11 @@ export default function OpportunitiesPage() {
               setLocation("All");
               setDeadline("All");
               setSearch("");
+              setShowUnverified(true);
             }}
             className="mt-4 inline-flex items-center gap-2 bg-cyan text-navy font-semibold rounded-lg px-4 py-2 text-sm hover:bg-cyan/90 transition-colors"
           >
-            Reset Filters
+            Reset & Show All
           </button>
         </div>
       ) : (

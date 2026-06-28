@@ -11,11 +11,49 @@ const spaceGrotesk = Space_Grotesk({
 });
 
 export const metadata: Metadata = {
-  title: "ElectroBridge - Electronics & Semiconductor Opportunities",
+  metadataBase: new URL("https://electrobridge.vercel.app"),
+  title: {
+    default: "ElectroBridge — Electronics & Semiconductor Opportunities India",
+    template: "%s | ElectroBridge",
+  },
   description:
-    "Your gateway to electronics and semiconductor opportunities. Find JRF, PhD, government jobs, private sector positions, and tech news — all in one place.",
-  keywords:
-    "electronics, semiconductor, JRF, PhD, jobs, India, research, VLSI, embedded systems",
+    "Find JRF, PhD positions, government research jobs, and private sector opportunities in electronics and semiconductor industry. DRDO, ISRO, CSIR, IIT opportunities in one place.",
+  keywords: [
+    "JRF", "Junior Research Fellow", "electronics jobs India", "semiconductor jobs",
+    "DRDO recruitment", "ISRO JRF", "CSIR fellowship", "PhD electronics India",
+    "VLSI jobs", "embedded systems jobs", "research fellowship India",
+    "NET electronics jobs", "GATE electronics jobs",
+  ],
+  authors: [{ name: "ElectroBridge" }],
+  creator: "ElectroBridge",
+  openGraph: {
+    type: "website",
+    locale: "en_IN",
+    url: "https://electrobridge.vercel.app",
+    siteName: "ElectroBridge",
+    title: "ElectroBridge — Electronics & Semiconductor Opportunities",
+    description:
+      "One-stop platform for JRF, PhD, government and private sector opportunities in electronics and semiconductor industry.",
+    images: [{ url: "/api/og", width: 1200, height: 630, alt: "ElectroBridge" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "ElectroBridge — Electronics & Semiconductor Opportunities",
+    description:
+      "Find JRF, PhD, DRDO, ISRO, CSIR opportunities in electronics & semiconductor.",
+    images: ["/api/og"],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-snippet": -1,
+      "max-image-preview": "large",
+    },
+  },
+  alternates: { canonical: "https://electrobridge.vercel.app" },
   verification: {
     google: "QnEIBEpKxP_ZiQxtneegX-6WWKxO_FZ8Yzzxp4kOqxA",
   },

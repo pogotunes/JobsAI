@@ -50,7 +50,12 @@ async function getActiveSubscribers(): Promise<Subscriber[]> {
 }
 
 function buildDigestHTML(data: DigestData): string {
-  const formatOppRow = (opp: Opportunity, index: number) => `
+  const formatOppRow = (opp: Opportunity, index: number) => {
+    const detailUrl = opp.slug
+      ? `https://electrobridge.vercel.app/opportunities/${opp.slug}`
+      : `https://electrobridge.vercel.app/opportunities/${opp.id}`;
+
+    return `
     <tr>
       <td style="padding: 12px 0; border-bottom: 1px solid #1E293B;">
         <div style="display: flex; align-items: flex-start; gap: 8px;">
@@ -62,14 +67,14 @@ function buildDigestHTML(data: DigestData): string {
             <p style="margin: 0; font-size: 12px; color: #94A3B8;">
               ${opp.organization}${opp.deadline ? ` | Deadline: ${new Date(opp.deadline).toLocaleDateString("en-IN", { year: "numeric", month: "long", day: "numeric" })}` : ""}${opp.eligibility ? ` | ${opp.eligibility}` : ""}
             </p>
-            <a href="https://electrobridge.vercel.app/opportunities/${opp.id}" style="display: inline-block; margin-top: 8px; padding: 6px 16px; background: #06B6D4; color: #0A0F1E; text-decoration: none; border-radius: 6px; font-size: 12px; font-weight: 600;">
+            <a href="${detailUrl}" style="display: inline-block; margin-top: 8px; padding: 6px 16px; background: #06B6D4; color: #0A0F1E; text-decoration: none; border-radius: 6px; font-size: 12px; font-weight: 600;">
               View & Apply
             </a>
           </div>
         </div>
       </td>
-    </tr>
-  `;
+    </tr>`;
+  };
 
   return `
 <!DOCTYPE html>
@@ -141,7 +146,6 @@ export async function sendDigest() {
   const html = buildDigestHTML(data);
   const subject = `⚡ ElectroBridge Weekly Digest — ${new Date().toLocaleDateString("en-IN", { month: "long", day: "numeric", year: "numeric" })}`;
 
-  // Dynamically import Resend (it's ESM)
   const { Resend } = await import("resend");
   const resend = new Resend(RESEND_API_KEY);
 
@@ -162,7 +166,6 @@ export async function sendDigest() {
       failed++;
     }
 
-    // Small delay to avoid rate limiting
     if (subscribers.length > 1) {
       await new Promise((r) => setTimeout(r, 100));
     }

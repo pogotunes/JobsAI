@@ -1,0 +1,17 @@
+# OpenCode Session Starter Prompt
+# Ye prompt copy karke OpenCode ke pehle message mein paste karo
+
+---
+
+I am working on ElectroBridge — a Next.js 14 + Supabase project deployed at https://electrobridge.vercel.app
+
+First, please read these two files from my project root before doing anything else:
+1. `MASTER_CONTEXT.md` — complete project overview, database schema, file structure, what works and what doesn't
+2. `TASKS.md` — prioritized list of things to build next
+
+After reading both files, tell me:
+- What you understood about the project
+- Which task you're ready to start
+- Any questions before you begin
+
+Do NOT write any code until you have confirmed you've read both files and I tell you which task to start.

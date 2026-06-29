@@ -1,0 +1,5 @@
+Groq API - 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
+Huggingface API - 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
+Openrouter API - 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
+gemini API - AQ.Ab8RN6JnY3mrY50m0iT44QgetBcXli7w6Ms18jST1UWg1ZNnJA
+cloudflair API - cfut_jrWrslxMHG4zEXFgZC0megIFadRxNTEeAq1KcHjxccb4c4ea

@@ -1,116 +1,93 @@
 # ElectroBridge
 
-Your gateway to electronics & semiconductor opportunities. Aggregate job postings, JRF/PhD positions, government research jobs, technology news, and industry trends — all in one place.
+Your gateway to electronics & semiconductor opportunities in India and globally. Aggregates JRF/PhD/government/private sector positions, tech news, and research resources — all in one place.
 
 ## Tech Stack
 
-- **Framework:** Next.js 14 (App Router)
-- **Database:** Supabase (PostgreSQL)
-- **Styling:** Tailwind CSS
-- **Deployment:** Vercel
+- **Framework:** Next.js 14 (App Router, Server Components)
+- **Database:** Supabase (PostgreSQL, RLS)
+- **Styling:** Tailwind CSS (dark theme)
+- **AI:** Groq, Gemini, OpenRouter, Cloudflare Workers AI, HuggingFace (multi-provider fallback)
+- **Deployment:** Vercel (root: `electrobridge/`)
+
+## Features
+
+### Opportunities
+- 7 category pages: JRF, SRF, PhD, Govt Jobs, Fellowships, Private Sector, International
+- Dynamic filtering, search, eligibility/location filters
+- Verification system (verified/unverified/expired)
+- Link checking automation
+- Calendar export for deadlines
+
+### Tech News
+- RSS scraper fetching from 18 electronics-specific sources
+- Multi-layer AI filter: hard blocklist → keyword whitelist → auto-tagging (20+ tags)
+- Category tabs, search, source color badges
+- News detail pages with NewsArticle schema
+
+### AI Integration
+- **Smart Search** — AI-parsed search queries with chip filters
+- **Opportunity Matcher** — Describe your profile, get matched opportunities
+- **AI Chat** — Ask questions about the platform, opportunities, research careers
+- **Summarizer** — Auto-summarize opportunity descriptions
+- **Expiry Checker** — Cron endpoint to auto-expire outdated listings
+- **Weekly Digest** — AI-generated newsletter content
+- **Usage Analytics** — Admin panel tracks per-provider/feature usage
+
+### Resource Guides
+- JRF Complete Guide (FAQPage schema, stipend table, live feed)
+- International Fellowships (DAAD, SINGA, MEXT, Marie Curie comparison)
+- VLSI Career Guide (roles, companies, salary tables)
+- NET vs GATE Comparison
+
+### Other Features
+- Organization pages (per-org opportunity listings)
+- Find My Match (profile-based matching)
+- Admin panel (add/edit/expire opportunities, view subscribers, AI analytics, trigger scrapes)
+- Weekly email digests
+- Contact/suggestions form
+- Full SEO with JSON-LD schemas, sitemap, Open Graph
 
 ## Getting Started
 
-### 1. Clone and Install
+### 1. Install
 
 ```bash
 npm install
 ```
 
-### 2. Set Up Supabase
+### 2. Supabase Setup
 
-1. Create a project at [supabase.com](https://supabase.com)
-2. Go to SQL Editor and run the schema from `supabase-schema.sql`:
+Create a project at [supabase.com](https://supabase.com). Apply migrations:
 
-```sql
--- Opportunities table
-create table opportunities (
-  id uuid default gen_random_uuid() primary key,
-  title text not null,
-  organization text not null,
-  category text not null,
-  location text,
-  stipend text,
-  deadline date,
-  eligibility text,
-  description text,
-  apply_link text,
-  source_url text,
-  is_active boolean default true,
-  created_at timestamp with time zone default now(),
-  tags text[]
-);
-
--- News articles table
-create table news_articles (
-  id uuid default gen_random_uuid() primary key,
-  title text not null,
-  summary text,
-  source text,
-  source_url text,
-  published_at timestamp with time zone,
-  image_url text,
-  tags text[],
-  created_at timestamp with time zone default now()
-);
-
--- Email subscribers table
-create table subscribers (
-  id uuid default gen_random_uuid() primary key,
-  email text unique not null,
-  keywords text[],
-  categories text[],
-  created_at timestamp with time zone default now(),
-  is_active boolean default true
-);
-
--- Enable RLS
-alter table opportunities enable row level security;
-alter table news_articles enable row level security;
-alter table subscribers enable row level security;
-
--- Saved bookmarks (requires Supabase Auth)
-create table saved_opportunities (
-  id uuid default gen_random_uuid() primary key,
-  user_id uuid references auth.users(id),
-  opportunity_id uuid references opportunities(id),
-  created_at timestamp with time zone default now()
-);
-
-alter table saved_opportunities enable row level security;
-
-create policy "Users can manage own bookmarks" on saved_opportunities
-  for all using (auth.uid() = user_id);
-
--- Public read access
-create policy "Public can read opportunities" on opportunities for select using (true);
-create policy "Public can read news" on news_articles for select using (true);
-create policy "Anyone can subscribe" on subscribers for insert with check (true);
+```bash
+npx supabase link --project-ref YOUR_PROJECT_REF
+npx supabase db push
 ```
 
-3. Copy your **Project URL**, **anon key**, and **service_role key** from Settings → API.
+Or run the SQL files in `supabase/migrations/` manually.
 
 ### 3. Environment Variables
 
 Create `.env.local`:
 
 ```env
-NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+NEXT_PUBLIC_SUPABASE_URL=your_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key
 SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
 NEXT_PUBLIC_ADMIN_PASSWORD=electrobridge2026
 CRON_SECRET=mysecretcron2026
+
+# AI Providers (optional — each is auto-detected)
+GROQ_API_KEY=
+GEMINI_API_KEY=
+OPENROUTER_API_KEY=
+HUGGINGFACE_API_KEY=
+CLOUDFLARE_AI_TOKEN=
+CLOUDFLARE_ACCOUNT_ID=
 ```
 
-### 4. Seed Data
-
-Visit `/api/seed` in your browser to load 10 seed opportunities, or call:
-
-```bash
-curl https://your-domain.vercel.app/api/seed
-```
-
-### 5. Run Locally
+### 4. Run Locally
 
 ```bash
 npm run dev
@@ -118,48 +95,49 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000).
 
+### 5. Seed Data
+
+```bash
+curl http://localhost:3000/api/seed
+```
+
 ## Deploy to Vercel
 
 1. Push to GitHub
-2. Go to [vercel.com](https://vercel.com) → Import project from GitHub
-3. Add environment variables (same as `.env.local`)
+2. Import project — set root directory to `electrobridge/`
+3. Add all environment variables
 4. Deploy
 
 ## Admin Panel
 
 Access `/admin` with password (default: `electrobridge2026`).
 
-Features:
-- Add/edit/expire opportunities
-- View subscribers
-- Trigger RSS news scrape
-
-## RSS News Scraper
-
-The `/api/scrape` endpoint fetches news from:
-- IEEE Spectrum
-- EE Times
-- Semiconductor Engineering
-- Electronics Weekly
-- The Hindu Science
-
-Schedule it via Supabase cron or any cron service:
-
-```bash
-curl -H "Authorization: Bearer YOUR_CRON_SECRET" https://your-domain.vercel.app/api/scrape
-```
+Tabs:
+- **Dashboard** — Stats overview
+- **Add Opportunity** — Manual entry form
+- **AI Usage** — Provider/feature usage analytics
+- **Subscribers** — Email subscriber list
+- **Actions** — Trigger scrape, check links, generate digest
 
 ## API Routes
 
 | Route | Method | Description |
 |-------|--------|-------------|
 | `/api/opportunities` | GET | List opportunities (with filters) |
-| `/api/opportunities` | POST | Create opportunity (service role) |
-| `/api/opportunities/[id]` | GET | Get single opportunity |
-| `/api/opportunities/[id]` | PATCH | Update opportunity |
-| `/api/opportunities/[id]` | DELETE | Delete opportunity |
-| `/api/news` | GET | List news articles |
+| `/api/opportunities` | POST | Create opportunity |
+| `/api/opportunities/[id]` | GET/PATCH/DELETE | Single opportunity CRUD |
+| `/api/news` | GET | List news articles (search, tag, limit) |
+| `/api/news/scrape` | GET | Trigger RSS scrape (protected) |
 | `/api/subscribe` | POST | Subscribe email |
 | `/api/subscribe?email=` | DELETE | Unsubscribe |
-| `/api/scrape` | GET | Trigger RSS scrape |
-| `/api/seed` | GET | Seed database with sample data |
+| `/api/seed` | GET | Seed sample data |
+| `/api/ai/match` | POST | AI opportunity matcher |
+| `/api/ai/search` | GET | AI smart search |
+| `/api/ai/chat` | POST | AI chat assistant |
+| `/api/ai/opportunity-summary/[slug]` | GET | AI summary for opportunity |
+| `/api/ai/expire` | GET | Auto-expire outdated listings |
+| `/api/calendar-export/[id]` | GET | Download .ics calendar file |
+
+## RSS News Sources
+
+The scraper fetches from 18 sources: IEEE Spectrum, Semiconductor Engineering, EE Times, Electronics Weekly, Chip Design Magazine, SemiWiki, Electronics For You, AnandTech, The Register, Nature Electronics, Science Daily (Semiconductors & Electronics), Phys.org (Semiconductors & Electronics), India Semiconductor Mission, IESA News, and more.

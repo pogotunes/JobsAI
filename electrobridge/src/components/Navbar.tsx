@@ -130,6 +130,9 @@ export default function Navbar() {
             <Link href="/news" className="px-3 py-2 text-sm font-medium text-text-muted hover:text-text-primary rounded-lg hover:bg-navy-light/50 transition-colors">
               News
             </Link>
+            <Link href="/organizations" className="px-3 py-2 text-sm font-medium text-text-muted hover:text-text-primary rounded-lg hover:bg-navy-light/50 transition-colors">
+              Organizations
+            </Link>
             <Link href="/match" className="px-3 py-2 text-sm font-medium text-text-muted hover:text-text-primary rounded-lg hover:bg-navy-light/50 transition-colors">
               Find My Match
             </Link>
@@ -189,6 +192,13 @@ export default function Navbar() {
               className="block px-3 py-2.5 text-text-muted hover:text-text-primary transition-colors text-sm font-medium rounded-lg hover:bg-navy-light/50"
             >
               News
+            </Link>
+            <Link
+              href="/organizations"
+              onClick={() => setMenuOpen(false)}
+              className="block px-3 py-2.5 text-text-muted hover:text-text-primary transition-colors text-sm font-medium rounded-lg hover:bg-navy-light/50"
+            >
+              Organizations
             </Link>
             <Link
               href="/match"

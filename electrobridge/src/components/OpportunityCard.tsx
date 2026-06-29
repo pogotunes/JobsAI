@@ -13,6 +13,13 @@ interface OpportunityCardProps {
   opportunity: Opportunity;
 }
 
+function orgSlug(name: string): string {
+  return name
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
+}
+
 function getInitials(name: string): string {
   return name
     .split(" ")
@@ -75,7 +82,13 @@ export default function OpportunityCard({ opportunity }: OpportunityCardProps) {
                   {opportunity.title}
                 </h3>
                 <div className="flex items-center gap-2 mt-0.5">
-                  <span className="text-text-muted text-xs">{opportunity.organization}</span>
+                  <Link
+                    href={`/organizations/${orgSlug(opportunity.organization)}`}
+                    className="text-text-muted text-xs hover:text-cyan transition-colors"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    {opportunity.organization}
+                  </Link>
                   {opportunity.verification_status && (
                     <VerificationBadge status={opportunity.verification_status} compact />
                   )}

@@ -73,22 +73,21 @@ export default function Navbar() {
               onMouseLeave={() => hideDropdown("opportunities")}
             >
               <button
-                className={`flex items-center gap-1 px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
-                  openDropdown === "opportunities"
-                    ? "text-text-primary bg-navy-light"
+                className={`flex items-center gap-1 px-3 py-2 text-sm font-medium rounded-lg transition-all duration-300 ${openDropdown === "opportunities"
+                    ? "text-text-primary bg-navy-light shadow-accent-glow"
                     : "text-text-muted hover:text-text-primary hover:bg-navy-light/50"
                 }`}
               >
                 Opportunities
-                <ChevronDown className={`w-3.5 h-3.5 transition-transform ${openDropdown === "opportunities" ? "rotate-180" : ""}`} />
+                <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-300 ${openDropdown === "opportunities" ? "rotate-180" : ""}`} />
               </button>
               {openDropdown === "opportunities" && (
-                <div className="absolute top-full left-0 mt-1 w-52 bg-navy-light border border-gray-700 rounded-xl shadow-xl py-2 z-50">
+                <div className="absolute top-full left-0 mt-1 w-52 bg-navy-light border border-gray-800 rounded-xl shadow-xl py-2 z-50 animate-in fade-in-0 zoom-in-95 duration-200">
                   {OPPORTUNITY_LINKS.map((link) => (
                     <Link
                       key={link.href}
                       href={link.href}
-                      className="block px-4 py-2 text-sm text-text-muted hover:text-text-primary hover:bg-navy/50 transition-colors"
+                      className="block px-4 py-2 text-sm text-text-muted hover:text-cyan hover:bg-cyan/10 transition-all duration-200"
                     >
                       {link.label}
                     </Link>
@@ -104,22 +103,21 @@ export default function Navbar() {
               onMouseLeave={() => hideDropdown("resources")}
             >
               <button
-                className={`flex items-center gap-1 px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
-                  openDropdown === "resources"
-                    ? "text-text-primary bg-navy-light"
+                className={`flex items-center gap-1 px-3 py-2 text-sm font-medium rounded-lg transition-all duration-300 ${openDropdown === "resources"
+                    ? "text-text-primary bg-navy-light shadow-accent-glow"
                     : "text-text-muted hover:text-text-primary hover:bg-navy-light/50"
                 }`}
               >
                 Resources
-                <ChevronDown className={`w-3.5 h-3.5 transition-transform ${openDropdown === "resources" ? "rotate-180" : ""}`} />
+                <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-300 ${openDropdown === "resources" ? "rotate-180" : ""}`} />
               </button>
               {openDropdown === "resources" && (
-                <div className="absolute top-full left-0 mt-1 w-52 bg-navy-light border border-gray-700 rounded-xl shadow-xl py-2 z-50">
+                <div className="absolute top-full left-0 mt-1 w-52 bg-navy-light border border-gray-800 rounded-xl shadow-xl py-2 z-50 animate-in fade-in-0 zoom-in-95 duration-200">
                   {RESOURCE_LINKS.map((link) => (
                     <Link
                       key={link.href}
                       href={link.href}
-                      className="block px-4 py-2 text-sm text-text-muted hover:text-text-primary hover:bg-navy/50 transition-colors"
+                      className="block px-4 py-2 text-sm text-text-muted hover:text-cyan hover:bg-cyan/10 transition-all duration-200"
                     >
                       {link.label}
                     </Link>
@@ -128,26 +126,26 @@ export default function Navbar() {
               )}
             </div>
 
-            <Link href="/news" className="px-3 py-2 text-sm font-medium text-text-muted hover:text-text-primary rounded-lg hover:bg-navy-light/50 transition-colors">
+            <Link href="/news" className="px-3 py-2 text-sm font-medium text-text-muted hover:text-text-primary rounded-lg hover:bg-navy-light/50 hover:shadow-accent-glow transition-all duration-300">
               News
             </Link>
-            <Link href="/organizations" className="px-3 py-2 text-sm font-medium text-text-muted hover:text-text-primary rounded-lg hover:bg-navy-light/50 transition-colors">
+            <Link href="/organizations" className="px-3 py-2 text-sm font-medium text-text-muted hover:text-text-primary rounded-lg hover:bg-navy-light/50 hover:shadow-accent-glow transition-all duration-300">
               Organizations
             </Link>
-            <Link href="/match" className="px-3 py-2 text-sm font-medium text-text-muted hover:text-text-primary rounded-lg hover:bg-navy-light/50 transition-colors">
+            <Link href="/match" className="px-3 py-2 text-sm font-medium text-text-muted hover:text-text-primary rounded-lg hover:bg-navy-light/50 hover:shadow-accent-glow transition-all duration-300">
               Find My Match
             </Link>
-            <Link href="/chat" className="px-3 py-2 text-sm font-medium text-text-muted hover:text-text-primary rounded-lg hover:bg-navy-light/50 transition-colors">
+            <Link href="/chat" className="px-3 py-2 text-sm font-medium text-text-muted hover:text-text-primary rounded-lg hover:bg-navy-light/50 hover:shadow-accent-glow transition-all duration-300">
               Ask AI
             </Link>
-            <Link href="/about" className="px-3 py-2 text-sm font-medium text-text-muted hover:text-text-primary rounded-lg hover:bg-navy-light/50 transition-colors">
+            <Link href="/about" className="px-3 py-2 text-sm font-medium text-text-muted hover:text-text-primary rounded-lg hover:bg-navy-light/50 hover:shadow-accent-glow transition-all duration-300">
               About
             </Link>
           </div>
 
           <button
             onClick={() => setMenuOpen(!menuOpen)}
-            className="md:hidden text-text-muted hover:text-text-primary transition-colors"
+            className="md:hidden text-text-muted hover:text-text-primary transition-all duration-300 hover:shadow-accent-glow"
             aria-label="Toggle menu"
           >
             {menuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
@@ -165,7 +163,7 @@ export default function Navbar() {
                 key={link.href}
                 href={link.href}
                 onClick={() => setMenuOpen(false)}
-                className="block px-3 py-2.5 text-text-muted hover:text-text-primary transition-colors text-sm font-medium rounded-lg hover:bg-navy-light/50"
+                className="block px-3 py-2.5 text-text-muted hover:text-text-primary transition-all duration-300 text-sm font-medium rounded-lg hover:bg-navy-light/50 hover:shadow-accent-glow"
               >
                 {link.label}
               </Link>
@@ -179,7 +177,7 @@ export default function Navbar() {
                 key={link.href}
                 href={link.href}
                 onClick={() => setMenuOpen(false)}
-                className="block px-3 py-2.5 text-text-muted hover:text-text-primary transition-colors text-sm font-medium rounded-lg hover:bg-navy-light/50"
+                className="block px-3 py-2.5 text-text-muted hover:text-text-primary transition-all duration-300 text-sm font-medium rounded-lg hover:bg-navy-light/50 hover:shadow-accent-glow"
               >
                 {link.label}
               </Link>
@@ -190,42 +188,42 @@ export default function Navbar() {
             <Link
               href="/news"
               onClick={() => setMenuOpen(false)}
-              className="block px-3 py-2.5 text-text-muted hover:text-text-primary transition-colors text-sm font-medium rounded-lg hover:bg-navy-light/50"
+              className="block px-3 py-2.5 text-text-muted hover:text-text-primary transition-all duration-300 text-sm font-medium rounded-lg hover:bg-navy-light/50 hover:shadow-accent-glow"
             >
               News
             </Link>
             <Link
               href="/organizations"
               onClick={() => setMenuOpen(false)}
-              className="block px-3 py-2.5 text-text-muted hover:text-text-primary transition-colors text-sm font-medium rounded-lg hover:bg-navy-light/50"
+              className="block px-3 py-2.5 text-text-muted hover:text-text-primary transition-all duration-300 text-sm font-medium rounded-lg hover:bg-navy-light/50 hover:shadow-accent-glow"
             >
               Organizations
             </Link>
             <Link
               href="/match"
               onClick={() => setMenuOpen(false)}
-              className="block px-3 py-2.5 text-text-muted hover:text-text-primary transition-colors text-sm font-medium rounded-lg hover:bg-navy-light/50"
+              className="block px-3 py-2.5 text-text-muted hover:text-text-primary transition-all duration-300 text-sm font-medium rounded-lg hover:bg-navy-light/50 hover:shadow-accent-glow"
             >
               Find My Match
             </Link>
             <Link
               href="/chat"
               onClick={() => setMenuOpen(false)}
-              className="block px-3 py-2.5 text-text-muted hover:text-text-primary transition-colors text-sm font-medium rounded-lg hover:bg-navy-light/50"
+              className="block px-3 py-2.5 text-text-muted hover:text-text-primary transition-all duration-300 text-sm font-medium rounded-lg hover:bg-navy-light/50 hover:shadow-accent-glow"
             >
               Ask AI
             </Link>
             <Link
               href="/about"
               onClick={() => setMenuOpen(false)}
-              className="block px-3 py-2.5 text-text-muted hover:text-text-primary transition-colors text-sm font-medium rounded-lg hover:bg-navy-light/50"
+              className="block px-3 py-2.5 text-text-muted hover:text-text-primary transition-all duration-300 text-sm font-medium rounded-lg hover:bg-navy-light/50 hover:shadow-accent-glow"
             >
               About
             </Link>
             <Link
               href="/contact"
               onClick={() => setMenuOpen(false)}
-              className="block px-3 py-2.5 text-text-muted hover:text-text-primary transition-colors text-sm font-medium rounded-lg hover:bg-navy-light/50"
+              className="block px-3 py-2.5 text-text-muted hover:text-text-primary transition-all duration-300 text-sm font-medium rounded-lg hover:bg-navy-light/50 hover:shadow-accent-glow"
             >
               Contact
             </Link>
@@ -235,7 +233,7 @@ export default function Navbar() {
             <Link
               href="/contact"
               onClick={() => setMenuOpen(false)}
-              className="flex items-center gap-2 bg-cyan/10 text-cyan font-semibold rounded-lg px-4 py-3 text-sm hover:bg-cyan/20 transition-colors mt-2"
+              className="flex items-center gap-2 bg-cyan/10 text-cyan font-semibold rounded-lg px-4 py-3 text-sm hover:bg-cyan/20 transition-all duration-300 shadow-accent-glow mt-2"
             >
               <MessageSquare className="w-4 h-4" />
               Subscribe & Get Updates

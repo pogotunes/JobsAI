@@ -135,7 +135,7 @@ export default async function Home() {
         <div className="absolute inset-0 bg-gradient-to-b from-cyan/5 via-transparent to-transparent" />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
           <div className="text-center max-w-4xl mx-auto">
-            <div className="inline-flex items-center gap-2 bg-cyan/10 text-cyan text-sm font-medium px-4 py-1.5 rounded-full mb-6 border border-cyan/20">
+            <div className="inline-flex items-center gap-2 bg-cyan/10 text-cyan text-sm font-medium px-4 py-1.5 rounded-full mb-6 border border-cyan/20 shadow-accent-glow">
               <span className="w-2 h-2 bg-cyan rounded-full animate-pulse" />
               {stats.verified} verified opportunities
             </div>
@@ -154,14 +154,14 @@ export default async function Home() {
             <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
               <Link
                 href="/opportunities"
-                className="inline-flex items-center gap-2 bg-gradient-to-r from-cyan to-cyan/80 text-navy font-semibold rounded-lg px-6 py-3 hover:from-cyan/90 hover:to-cyan/70 transition-all"
+                className="inline-flex items-center gap-2 bg-gradient-to-r from-cyan to-cyan/80 text-navy font-semibold rounded-lg px-6 py-3 hover:from-cyan/90 hover:to-cyan/70 transition-all shadow-accent-glow"
               >
                 Browse Opportunities
                 <ArrowRight className="w-4 h-4" />
               </Link>
               <Link
                 href="/news"
-                className="inline-flex items-center gap-2 border border-gray-700 text-text-primary font-medium rounded-lg px-6 py-3 hover:border-cyan/50 transition-colors"
+                className="inline-flex items-center gap-2 border border-gray-800 text-text-primary font-medium rounded-lg px-6 py-3 hover:border-cyan/50 hover:shadow-accent-glow transition-all"
               >
                 <Newspaper className="w-4 h-4" />
                 Read Tech News
@@ -173,27 +173,27 @@ export default async function Home() {
 
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-4">
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-          <div className="bg-navy-light border border-gray-800 rounded-xl p-5 text-center hover:border-cyan/20 transition-colors">
+          <div className="bg-navy-light border border-gray-800 rounded-xl p-5 text-center hover:border-cyan/30 hover:shadow-card-hover transition-all group">
             <p className="text-3xl font-bold text-cyan font-display">{stats.total}</p>
             <p className="text-text-muted text-xs mt-1">Active Opportunities</p>
           </div>
-          <div className="bg-navy-light border border-gray-800 rounded-xl p-5 text-center hover:border-cyan/20 transition-colors">
+          <div className="bg-navy-light border border-gray-800 rounded-xl p-5 text-center hover:border-cyan/30 hover:shadow-card-hover transition-all group">
             <p className="text-3xl font-bold text-cyan font-display">{stats.verified}</p>
             <p className="text-text-muted text-xs mt-1">Verified</p>
           </div>
-          <div className="bg-navy-light border border-gray-800 rounded-xl p-5 text-center hover:border-purple/20 transition-colors">
+          <div className="bg-navy-light border border-gray-800 rounded-xl p-5 text-center hover:border-purple/30 hover:shadow-card-hover transition-all group">
             <p className="text-3xl font-bold text-purple font-display">{stats.jrf}</p>
             <p className="text-text-muted text-xs mt-1">JRF</p>
           </div>
-          <div className="bg-navy-light border border-gray-800 rounded-xl p-5 text-center hover:border-green-500/20 transition-colors">
+          <div className="bg-navy-light border border-gray-800 rounded-xl p-5 text-center hover:border-green-500/30 hover:shadow-card-hover transition-all group">
             <p className="text-3xl font-bold text-green-400 font-display">{stats.phd}</p>
             <p className="text-text-muted text-xs mt-1">PhD</p>
           </div>
-          <div className="bg-navy-light border border-gray-800 rounded-xl p-5 text-center hover:border-amber-400/20 transition-colors">
+          <div className="bg-navy-light border border-gray-800 rounded-xl p-5 text-center hover:border-amber-400/30 hover:shadow-card-hover transition-all group">
             <p className="text-3xl font-bold text-amber-400 font-display">{stats.govt}</p>
             <p className="text-text-muted text-xs mt-1">Govt Jobs</p>
           </div>
-          <div className="bg-navy-light border border-gray-800 rounded-xl p-5 text-center hover:border-purple/20 transition-colors">
+          <div className="bg-navy-light border border-gray-800 rounded-xl p-5 text-center hover:border-purple/30 hover:shadow-card-hover transition-all group">
             <p className="text-3xl font-bold text-purple font-display">{stats.addedThisWeek}</p>
             <p className="text-text-muted text-xs mt-1">New This Week</p>
           </div>

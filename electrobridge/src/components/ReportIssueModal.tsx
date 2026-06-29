@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { X, Check, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
 interface ReportIssueModalProps {
   isOpen: boolean;
@@ -26,8 +27,10 @@ export default function ReportIssueModal({ isOpen, onClose, opportunityId }: Rep
         body: JSON.stringify({ opportunity_id: opportunityId, report_type: reportType, description }),
       });
       setStatus("success");
+      toast.success("Issue reported. We'll look into it.");
       setTimeout(() => { onClose(); setStatus("idle"); setReportType(""); setDescription(""); }, 1500);
     } catch {
+      toast.error("Couldn't submit report. Try again.");
       setStatus("idle");
     }
   };

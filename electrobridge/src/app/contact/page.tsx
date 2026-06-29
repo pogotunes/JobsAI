@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Send, CheckCircle, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 import { supabase } from "@/lib/supabase";
 
 const SUGGESTION_TYPES = [
@@ -35,8 +36,11 @@ export default function ContactPage() {
 
       if (insertError) throw insertError;
       setSubmitted(true);
+      toast.success("Message sent! We'll get back to you.");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to submit. Please try again.");
+      const msg = err instanceof Error ? err.message : "Failed to submit. Please try again.";
+      setError(msg);
+      toast.error(msg);
     } finally {
       setLoading(false);
     }

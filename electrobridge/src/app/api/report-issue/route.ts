@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase";
 
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 export async function POST(request: NextRequest) {
   const body = await request.json();
   const { opportunity_id, report_type, description } = body;
@@ -9,8 +11,14 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
   }
 
+  if (!UUID_REGEX.test(opportunity_id)) {
+    return NextResponse.json({ error: "Invalid opportunity ID" }, { status: 400 });
+  }
+
+  const trimmedDescription = (description || "").trim().slice(0, 500);
+
   const { error } = await supabaseAdmin.from("opportunity_reports").insert([
-    { opportunity_id, report_type, description: description || "" },
+    { opportunity_id, report_type, description: trimmedDescription },
   ]);
 
   if (error) {

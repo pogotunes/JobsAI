@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { X, Bell, Check } from "lucide-react";
+import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
 interface SubscribeModalProps {
@@ -56,13 +57,16 @@ export default function SubscribeModal({ isOpen, onClose }: SubscribeModalProps)
       if (res.ok) {
         setStatus("success");
         setMessage("Subscribed successfully! You'll get alerts for matching opportunities.");
+        toast.success("Subscribed! You'll get alerts for matching opportunities.");
       } else {
         setStatus("error");
         setMessage(data.error || "Something went wrong");
+        toast.error(data.error || "Something went wrong. Try again.");
       }
     } catch {
       setStatus("error");
       setMessage("Failed to subscribe. Please try again.");
+      toast.error("Failed to subscribe. Please try again.");
     }
   };
 

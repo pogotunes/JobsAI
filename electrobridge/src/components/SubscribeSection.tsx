@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Bell, Check, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 import SubscribeModal from "./SubscribeModal";
 
 export default function SubscribeSection() {
@@ -18,9 +19,16 @@ export default function SubscribeSection() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, keywords: [], categories: [] }),
       });
-      if (res.ok) setStatus("success");
-      else setStatus("idle");
+      if (res.ok) {
+        setStatus("success");
+        toast.success("Subscribed! You'll get weekly alerts.");
+      } else {
+        const data = await res.json();
+        toast.error(data.error || "Something went wrong. Try again.");
+        setStatus("idle");
+      }
     } catch {
+      toast.error("Something went wrong. Try again.");
       setStatus("idle");
     }
   };

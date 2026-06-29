@@ -1,22 +1,16 @@
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
 
 export default function NotFound() {
   return (
-    <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
-      <h1 className="font-display text-6xl font-bold text-cyan">404</h1>
-      <h2 className="font-display text-xl font-bold text-text-primary">
-        Page Not Found
-      </h2>
-      <p className="text-text-muted text-sm">
-        The page you are looking for does not exist.
-      </p>
+    <div className="min-h-[70vh] flex flex-col items-center justify-center px-4 text-center">
+      <h1 className="font-display text-7xl font-bold text-cyan mb-4">404</h1>
+      <p className="text-xl text-text-primary font-medium mb-2">Page Not Found</p>
+      <p className="text-text-muted mb-8">This page doesn&apos;t exist.</p>
       <Link
         href="/"
-        className="inline-flex items-center gap-2 bg-cyan text-navy font-semibold rounded-lg px-4 py-2 text-sm hover:bg-cyan/90 transition-colors"
+        className="inline-flex items-center gap-2 bg-cyan text-navy font-semibold rounded-lg px-6 py-2.5 text-sm hover:bg-cyan/90 transition-colors"
       >
-        <ArrowLeft className="w-4 h-4" />
-        Go Home
+        &larr; Back to ElectroBridge
       </Link>
     </div>
   );

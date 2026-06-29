@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import type { Opportunity, Subscriber } from "@/types";
 import { CATEGORIES } from "@/lib/utils";
@@ -22,6 +24,7 @@ interface ScrapeLog {
 let logIdCounter = 0;
 
 export default function AdminPage() {
+  const router = useRouter();
   const [authenticated, setAuthenticated] = useState(false);
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -203,7 +206,12 @@ export default function AdminPage() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <h1 className="font-display text-3xl font-bold text-text-primary mb-6">Admin Panel</h1>
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="font-display text-3xl font-bold text-text-primary">Admin Panel</h1>
+        <Link href="/admin/add-news" className="flex items-center gap-2 bg-purple-500/20 text-purple-400 border border-purple-500/30 rounded-lg px-4 py-2 text-sm font-medium hover:bg-purple-500/30 transition-colors">
+          <Plus className="w-4 h-4" /> Add News
+        </Link>
+      </div>
 
       <div className="flex gap-2 mb-6 border-b border-gray-800 pb-4 overflow-x-auto">
         {(["opportunities", "verification", "add", "subscribers", "sources", "logs", "popular", "ai"] as const).map((tab) => (
@@ -255,6 +263,7 @@ export default function AdminPage() {
                       <td className="py-3 px-2 text-right">
                         <div className="flex items-center justify-end gap-2">
                           {opp.is_active && <button onClick={() => handleMarkExpired(opp.id!)} className="text-xs text-warning hover:underline">Expire</button>}
+                          <button onClick={() => router.push(`/admin/edit-opportunity/${opp.id}`)} className="text-cyan hover:text-cyan/80"><Edit3 className="w-4 h-4" /></button>
                           <button onClick={() => handleDeleteOpportunity(opp.id!)} className="text-red-400 hover:text-red-300"><Trash2 className="w-4 h-4" /></button>
                         </div>
                       </td>

@@ -1,6 +1,13 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, Building2 } from "lucide-react";
 import { supabaseAdmin } from "@/lib/supabase";
+
+export const metadata: Metadata = {
+  title: "Organizations — ElectroBridge",
+  description:
+    "Browse electronics and semiconductor research opportunities by organization — DRDO, ISRO, CSIR, IITs, and more.",
+};
 
 interface OrgItem {
   name: string;

@@ -1,4 +1,4 @@
-import { callAI } from "./providers";
+import { callAIAdvanced } from "./providers";
 
 export async function generateWeeklyDigest(
   opportunities: any[],
@@ -31,10 +31,7 @@ Write a digest with:
 Keep it professional but warm. Under 300 words total.
 Return plain text (not HTML, not JSON).`;
 
-  const response = await callAI(prompt, undefined, {
-    preferredProvider: "gemini",
-    feature: "newsletter",
-  });
+  const response = await callAIAdvanced(prompt);
 
   return response.text;
 }

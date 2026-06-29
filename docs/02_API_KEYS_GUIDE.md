@@ -9,6 +9,7 @@
 | Provider | Model | Free Limit | Best For |
 |----------|-------|------------|----------|
 | Groq | Llama 3.1 8B Instant | 14,400 req/day | Speed, chatbot |
+| NVIDIA NIM | Llama 3.1 8B Instruct | 1,000 req/day (generous credits) | High quality, writing |
 | Gemini | Gemini 1.5 Flash | 1,500 req/day | Quality summaries |
 | OpenRouter | Llama 3.1 8B Free | ~50 req/day | Backup |
 | Cloudflare | Llama 3.1 8B | 10,000 neurons/day | Reliable backup |
@@ -21,10 +22,11 @@
 ## Fallback Order (in `providers.ts`)
 
 1st: Groq (fastest, most generous)  
-2nd: Gemini (most capable)  
-3rd: OpenRouter (good backup)  
-4th: Cloudflare (reliable)  
-5th: HuggingFace (always available, slowest)
+2nd: NVIDIA NIM (high quality, generous free credits)  
+3rd: Gemini (most capable)  
+4th: OpenRouter (good backup)  
+5th: Cloudflare (reliable)  
+6th: HuggingFace (always available, slowest)
 
 If any provider fails → automatically tries next in chain.
 
@@ -37,6 +39,12 @@ If any provider fails → automatically tries next in chain.
 2. API Keys → Create New Key
 3. Name: `electrobridge-prod`
 4. Copy key → set as `GROQ_API_KEY`
+
+### NVIDIA NIM
+1. Go to [build.nvidia.com](https://build.nvidia.com) → Sign in with NVIDIA account
+2. Click "API Keys" in the top right
+3. Generate a new key → starts with `nvapi-`
+4. Copy → set as `NVIDIA_NIM_API_KEY`
 
 ### Gemini
 1. Go to [aistudio.google.com](https://aistudio.google.com) → Login
@@ -76,6 +84,7 @@ CRON_SECRET=mysecretcron2026
 
 # AI Providers
 GROQ_API_KEY=
+NVIDIA_NIM_API_KEY=
 GEMINI_API_KEY=
 OPENROUTER_API_KEY=
 HUGGINGFACE_API_KEY=
@@ -105,7 +114,7 @@ RESEND_API_KEY=
 | Opportunity Summarizer | Gemini (quality) | Groq |
 | News Filter | Groq (speed) | Cloudflare |
 | Smart Search | Groq (fast) | Gemini |
-| Newsletter | Gemini (writing) | Groq |
+| Newsletter | NVIDIA NIM (advanced writing) | Gemini |
 | Expiry Checker | Cloudflare (save credits) | HuggingFace |
 
 ---

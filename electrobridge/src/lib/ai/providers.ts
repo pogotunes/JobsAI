@@ -1,6 +1,6 @@
 import { supabaseAdmin } from "@/lib/supabase";
 
-export type AIProvider = "groq" | "gemini" | "openrouter" | "cloudflare" | "huggingface";
+export type AIProvider = "groq" | "nvidia" | "gemini" | "openrouter" | "cloudflare" | "huggingface";
 
 export interface AIResponse {
   text: string;
@@ -36,15 +36,17 @@ async function logAIUsage(entry: AILogEntry) {
 }
 
 const PROVIDER_ORDER: AIProvider[] = [
-  "groq",
-  "gemini",
-  "openrouter",
-  "cloudflare",
-  "huggingface",
+  "groq",       // Fastest, 14,400 req/day free
+  "nvidia",     // High quality, generous free credits
+  "gemini",     // 1,500 req/day free
+  "openrouter", // Open models available
+  "cloudflare", // 10,000 neurons/day free
+  "huggingface", // Always available, slowest
 ];
 
 const PROVIDER_MODELS: Record<AIProvider, string> = {
   groq: "llama-3.1-8b-instant",
+  nvidia: "meta/llama-3.1-8b-instruct",
   gemini: "gemini-1.5-flash",
   openrouter: "meta-llama/llama-3.1-8b-instruct:free",
   cloudflare: "@cf/meta/llama-3.1-8b-instruct",
@@ -86,6 +88,74 @@ async function callGroq(prompt: string, systemPrompt?: string): Promise<string> 
     }),
   });
   if (!response.ok) throw new Error(`Groq error: ${response.status}`);
+  const data = await response.json();
+  return data.choices[0].message.content;
+}
+
+async function callNvidia(prompt: string, systemPrompt?: string): Promise<string> {
+  const response = await fetch(
+    "https://integrate.api.nvidia.com/v1/chat/completions",
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${process.env.NVIDIA_NIM_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "meta/llama-3.1-8b-instruct",
+        messages: [
+          ...(systemPrompt ? [{ role: "system" as const, content: systemPrompt }] : []),
+          { role: "user" as const, content: prompt },
+        ],
+        temperature: 0.3,
+        top_p: 0.7,
+        max_tokens: 1024,
+        stream: false,
+      }),
+    }
+  );
+
+  if (!response.ok) {
+    const error = await response.text();
+    throw new Error(`NVIDIA NIM error ${response.status}: ${error}`);
+  }
+
+  const data = await response.json();
+
+  if (!data.choices?.[0]?.message?.content) {
+    throw new Error("NVIDIA NIM: empty response");
+  }
+
+  return data.choices[0].message.content;
+}
+
+async function callNvidiaAdvanced(
+  prompt: string,
+  systemPrompt?: string
+): Promise<string> {
+  const response = await fetch(
+    "https://integrate.api.nvidia.com/v1/chat/completions",
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${process.env.NVIDIA_NIM_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "mistralai/mistral-7b-instruct-v0.3",
+        messages: [
+          ...(systemPrompt ? [{ role: "system" as const, content: systemPrompt }] : []),
+          { role: "user" as const, content: prompt },
+        ],
+        temperature: 0.5,
+        top_p: 0.9,
+        max_tokens: 2048,
+        stream: false,
+      }),
+    }
+  );
+
+  if (!response.ok) throw new Error(`NVIDIA Advanced error: ${response.status}`);
   const data = await response.json();
   return data.choices[0].message.content;
 }
@@ -171,25 +241,28 @@ export async function callAI(
 
   for (const provider of order) {
     const model = PROVIDER_MODELS[provider];
-    const envKey =
-      provider === "groq"
-        ? "GROQ_API_KEY"
-        : provider === "gemini"
-          ? "GEMINI_API_KEY"
-          : provider === "openrouter"
-            ? "OPENROUTER_API_KEY"
-            : provider === "cloudflare"
-              ? "CLOUDFLARE_AI_TOKEN"
-              : "HUGGINGFACE_API_KEY";
+    const envKey: Record<AIProvider, string> = {
+      groq: "GROQ_API_KEY",
+      nvidia: "NVIDIA_NIM_API_KEY",
+      gemini: "GEMINI_API_KEY",
+      openrouter: "OPENROUTER_API_KEY",
+      cloudflare: "CLOUDFLARE_AI_TOKEN",
+      huggingface: "HUGGINGFACE_API_KEY",
+    };
 
-    const extraEnv = provider === "cloudflare" ? "CLOUDFLARE_ACCOUNT_ID" : null;
-    if (!process.env[envKey] || (extraEnv && !process.env[extraEnv])) continue;
+    const extraEnv: Partial<Record<AIProvider, string>> = {
+      cloudflare: "CLOUDFLARE_ACCOUNT_ID",
+    };
+    if (!process.env[envKey[provider]] || (extraEnv[provider] && !process.env[extraEnv[provider]!])) continue;
 
     try {
       let text: string;
       switch (provider) {
         case "groq":
           text = await callGroq(prompt, systemPrompt);
+          break;
+        case "nvidia":
+          text = await callNvidia(prompt, systemPrompt);
           break;
         case "gemini":
           text = await callGemini(prompt, systemPrompt);
@@ -236,4 +309,43 @@ export async function callAI(
   }
 
   throw new Error("All AI providers failed. Please try again later.");
+}
+
+export async function callAIAdvanced(
+  prompt: string,
+  systemPrompt?: string
+): Promise<AIResponse> {
+  const advancedOrder: AIProvider[] = ["nvidia", "gemini", "groq"];
+
+  for (const provider of advancedOrder) {
+    const model = PROVIDER_MODELS[provider];
+
+    try {
+      let text: string;
+      if (provider === "nvidia") {
+        text = await callNvidiaAdvanced(prompt, systemPrompt);
+      } else if (provider === "gemini") {
+        text = await callGemini(prompt, systemPrompt);
+      } else {
+        text = await callGroq(prompt, systemPrompt);
+      }
+
+      logAIUsage({
+        feature: "advanced",
+        provider,
+        model,
+        prompt_length: prompt.length,
+        response_length: text.length,
+        success: true,
+        error_message: null,
+      });
+
+      return { text, provider, model };
+    } catch (error) {
+      console.warn(`[AI Advanced] ${provider} failed:`, error);
+      continue;
+    }
+  }
+
+  throw new Error("All advanced AI providers failed");
 }

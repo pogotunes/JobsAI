@@ -91,13 +91,14 @@ Phir GitHub par new repository banao → wahan ke commands paste karo.
 
 ## STEP 5: AI API Keys Lena Hai
 
-5 AI providers use hote hain (sab free):
+6 AI providers use hote hain (sab free):
 
 1. **Groq** (primary) → console.groq.com → API Key
-2. **Gemini** (backup) → aistudio.google.com → API Key
-3. **OpenRouter** → openrouter.ai → API Key
-4. **Cloudflare** → dash.cloudflare.com → API Token + Account ID
-5. **HuggingFace** → huggingface.co/settings/tokens
+2. **NVIDIA NIM** (high quality) → build.nvidia.com → API Key (nvapi-...)
+3. **Gemini** (backup) → aistudio.google.com → API Key
+4. **OpenRouter** → openrouter.ai → API Key
+5. **Cloudflare** → dash.cloudflare.com → API Token + Account ID
+6. **HuggingFace** → huggingface.co/settings/tokens
 
 Details ke liye `docs/02_API_KEYS_GUIDE.md` padho.
 
@@ -112,6 +113,7 @@ SUPABASE_SERVICE_ROLE_KEY=
 NEXT_PUBLIC_ADMIN_PASSWORD=electrobridge2026
 CRON_SECRET=mysecretcron2026
 GROQ_API_KEY=
+NVIDIA_NIM_API_KEY=
 GEMINI_API_KEY=
 OPENROUTER_API_KEY=
 HUGGINGFACE_API_KEY=
@@ -192,6 +194,7 @@ Details: `docs/04_WEEKLY_MAINTENANCE.md`
 | Vercel | 100GB bandwidth/mo | High traffic |
 | GitHub | Unlimited public repos | Kabhi nahi |
 | Groq AI | 14,400 req/day | Bahut heavy usage |
+| NVIDIA NIM | 1,000 req/day (generous free credits) | Heavy usage |
 | Total | ₹0/month | 1-2 saal free mein |
 
 ---

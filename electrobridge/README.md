@@ -7,7 +7,7 @@ Your gateway to electronics & semiconductor opportunities in India and globally.
 - **Framework:** Next.js 14 (App Router, Server Components)
 - **Database:** Supabase (PostgreSQL, RLS)
 - **Styling:** Tailwind CSS (dark theme)
-- **AI:** Groq, Gemini, OpenRouter, Cloudflare Workers AI, HuggingFace (multi-provider fallback)
+- **AI:** Groq, NVIDIA NIM, Gemini, OpenRouter, Cloudflare Workers AI, HuggingFace (multi-provider fallback)
 - **Deployment:** Vercel (root: `electrobridge/`)
 
 ## Features
@@ -87,6 +87,7 @@ CRON_SECRET=mysecretcron2026
 
 # AI Providers (optional — each is auto-detected)
 GROQ_API_KEY=
+NVIDIA_NIM_API_KEY=
 GEMINI_API_KEY=
 OPENAI_API_KEY=
 OPENROUTER_API_KEY=

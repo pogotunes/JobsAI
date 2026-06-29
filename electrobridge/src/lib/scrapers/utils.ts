@@ -1,16 +1,3 @@
-const RELEVANT_KEYWORDS = [
-  "semiconductor", "electronics", "VLSI", "chip", "transistor", "photonics",
-  "spintronics", "embedded", "MEMS", "radar", "microwave", "antenna", "PCB",
-  "circuit", "IoT", "FPGA", "microprocessor", "sensor", "nanotechnology",
-  "quantum", "laser", "optoelectronics", "power electronics", "RF", "signal",
-  "JRF", "PhD", "fellowship", "research", "DRDO", "ISRO", "CSIR", "IIT", "NIT",
-];
-
-export function isRelevantNews(title: string | null, summary: string | null): boolean {
-  const text = `${title || ""} ${summary || ""}`.toLowerCase();
-  return RELEVANT_KEYWORDS.some((kw) => text.includes(kw.toLowerCase()));
-}
-
 export function cleanTitle(title: string, organization: string): string {
   let t = title.trim();
 

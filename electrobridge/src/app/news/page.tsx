@@ -6,10 +6,24 @@ import NewsCard from "@/components/NewsCard";
 import SearchBar from "@/components/SearchBar";
 import { Loader2, RefreshCw } from "lucide-react";
 
+const TABS = [
+  { label: "All", value: "" },
+  { label: "Chip Design", value: "Chip Design" },
+  { label: "Foundry", value: "Foundry" },
+  { label: "AI Chips", value: "AI Chips" },
+  { label: "India", value: "India" },
+  { label: "Markets", value: "Markets" },
+  { label: "Policy", value: "Policy" },
+  { label: "5G/6G", value: "5G/6G" },
+  { label: "EV/Power", value: "EV/Power" },
+  { label: "Research", value: "Jobs/Research" },
+];
+
 export default function NewsPage() {
   const [articles, setArticles] = useState<NewsArticle[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [activeTag, setActiveTag] = useState("");
 
   const fetchNews = useCallback(async () => {
     setLoading(true);
@@ -18,6 +32,7 @@ export default function NewsPage() {
       const params = new URLSearchParams();
       params.set("limit", "50");
       if (search) params.set("search", search);
+      if (activeTag) params.set("tag", activeTag);
 
       const res = await fetch(`/api/news?${params}`);
       const data = await res.json();
@@ -33,7 +48,7 @@ export default function NewsPage() {
     } finally {
       setLoading(false);
     }
-  }, [search]);
+  }, [search, activeTag]);
 
   useEffect(() => {
     fetchNews();
@@ -41,7 +56,7 @@ export default function NewsPage() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8 gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4">
         <div>
           <h1 className="font-display text-3xl font-bold text-text-primary">
             Tech News
@@ -57,6 +72,22 @@ export default function NewsPage() {
           <RefreshCw className="w-4 h-4" />
           Refresh
         </button>
+      </div>
+
+      <div className="flex gap-2 mb-6 overflow-x-auto pb-2 scrollbar-thin">
+        {TABS.map((tab) => (
+          <button
+            key={tab.value}
+            onClick={() => setActiveTag(tab.value)}
+            className={`whitespace-nowrap px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+              activeTag === tab.value
+                ? "bg-cyan text-navy"
+                : "bg-navy-light text-text-muted border border-gray-700/50 hover:border-cyan/30"
+            }`}
+          >
+            {tab.label}
+          </button>
+        ))}
       </div>
 
       <div className="mb-8 max-w-md">

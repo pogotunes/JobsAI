@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin, isAdminConfigured } from "@/lib/supabase";
 import { fetchAllNews, fetchOpportunitiesFromRSS } from "@/lib/scrapers/rss-parser";
 import { scrapeAllOpportunities } from "@/lib/scrapers/opportunity-scraper";
-import { cleanTitle, isRelevantNews } from "@/lib/scrapers/utils";
+import { cleanTitle } from "@/lib/scrapers/utils";
+import { isElectronicsNews, autoTagArticle } from "@/lib/scrapers/news-filter";
 
 export async function GET(request: NextRequest) {
   if (!isAdminConfigured) {
@@ -34,14 +35,27 @@ export async function GET(request: NextRequest) {
       let newsSkipped = 0;
 
       for (const article of articles) {
-        if (!isRelevantNews(article.title, article.summary)) {
+        if (!isElectronicsNews(article.title, article.summary, 1)) {
           newsSkipped++;
           continue;
         }
 
         const { error } = await supabaseAdmin
           .from("news_articles")
-          .upsert([article], { onConflict: "source_url", ignoreDuplicates: false })
+          .upsert(
+            [{
+              title: article.title,
+              summary: article.summary,
+              source: article.source,
+              source_url: article.source_url,
+              published_at: article.published_at,
+              image_url: article.image_url,
+              tags: article.tags.length > 0
+                ? article.tags
+                : autoTagArticle(article.title, article.summary || ""),
+            }],
+            { onConflict: "source_url", ignoreDuplicates: false }
+          )
           .select();
 
         if (!error) newsInserted++;

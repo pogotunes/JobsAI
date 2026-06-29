@@ -13,12 +13,17 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const limit = parseInt(searchParams.get("limit") || "20");
     const search = searchParams.get("search");
+    const tag = searchParams.get("tag");
 
     let query = supabaseAdmin
       .from("news_articles")
       .select("*")
       .order("published_at", { ascending: false })
       .limit(limit);
+
+    if (tag) {
+      query = query.contains("tags", [tag]);
+    }
 
     if (search) {
       query = query.or(

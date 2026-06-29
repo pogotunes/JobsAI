@@ -55,6 +55,7 @@ JobsAI/
         │   ├── error.tsx                  ← Global error boundary (client)
         │   ├── admin/page.tsx
         │   ├── admin/add-news/page.tsx    ← Manually add news article
+        │   ├── admin/add-opportunity/page.tsx ← Manually add opportunity
         │   ├── admin/edit-opportunity/[id]/page.tsx ← Edit/delete opportunity
         │   ├── about/page.tsx
         │   ├── categories/page.tsx
@@ -79,6 +80,7 @@ JobsAI/
         │   ├── resources/international-fellowships/page.tsx
         │   ├── resources/jrf-guide/page.tsx
         │   └── resources/vlsi-careers/page.tsx
+        │   ├── resources/net-vs-gate/page.tsx
         │   ├── api/
         │   │   ├── admin/recheck-link/route.ts
         │   │   ├── ai/
@@ -104,6 +106,7 @@ JobsAI/
         │   │   ├── seed/route.ts
         │   │   ├── seed-news/route.ts
         │   │   ├── send-digest/route.ts
+        │   │   ├── cleanup-news/route.ts
         │   │   ├── similar/[id]/route.ts
         │   │   ├── subscribe/route.ts
         │   │   └── track-click/route.ts
@@ -123,10 +126,12 @@ JobsAI/
         │   ├── SearchBar.tsx
         │   ├── ShareButtons.tsx
         │   ├── SimilarOpportunities.tsx
+        │   ├── NewsImage.tsx
         │   ├── StatsBar.tsx
         │   ├── SubscribeModal.tsx
         │   └── SubscribeSection.tsx
         ├── lib/
+        │   ├── rate-limiter.ts
         │   ├── supabase.ts
         │   ├── email-digest.ts
         │   ├── telegram-bot.ts
@@ -199,6 +204,7 @@ JobsAI/
 | `GET /api/scrape-jobs` | `route.ts` | Govt jobs scraper |
 | `GET /api/scrape-opportunities` | `route.ts` | Legacy scraper endpoint |
 | `POST /api/seed` | `route.ts` | Seed opportunities table |
+│ `POST /api/cleanup-news` | `route.ts` | Deduplicate news by source_url (protected) |
 | `POST /api/seed-news` | `route.ts` | Seed news_articles table |
 | `POST /api/send-digest` | `route.ts` | Weekly email digest (cron) |
 | `GET /api/similar/[id]` | `route.ts` | Similar opportunities by tag overlap |
@@ -673,7 +679,7 @@ PROVIDER_ORDER: ["groq", "gemini", "openrouter", "cloudflare", "huggingface"]
 | `.env.local` committed | 🔴 Critical | Repository root | Rotate all secrets, add to `.gitignore`, scrub git history |
 | Weak admin password | 🔴 Critical | `admin/page.tsx:73` | Change `NEXT_PUBLIC_ADMIN_PASSWORD` in Vercel env |
 | Weak cron secret | 🔴 High | `check-links/route.ts:22` | Change `CRON_SECRET` in Vercel env |
-| No rate limiting on API | ⚠️ Medium | All API routes | Add rate limiting to `/api/scrape`, `/api/subscribe` |
+| No rate limiting on API | ⚠️ Medium | All API routes | Add rate limiting to remaining public endpoints |
 | No input validation | ⚠️ Medium | Contact form, subscribe | Validate email format, sanitize text inputs |
 | No CORS configuration | ⚠️ Low | API routes | Add CORS headers if needed for external access |
 | `service_role` key in client env | ⚠️ Medium | `.env.local` | Service role key should not be in `.env.local` (only in Vercel env) |
@@ -691,6 +697,15 @@ PROVIDER_ORDER: ["groq", "gemini", "openrouter", "cloudflare", "huggingface"]
 - SEO metadata added for chat, match, organizations pages
 - Admin: edit/delete opportunity page (`/admin/edit-opportunity/[id]`)
 - Admin: add news article page (`/admin/add-news`)
+- Admin: add opportunity page (`/admin/add-opportunity`)
+- Rate limiting added to subscribe API (3 req/IP/hour via in-memory Map)
+- Sitemap guard added (gracefully falls back to static URLs when DB unconfigured)
+- News dedup: check-then-insert by source_url + `/api/cleanup-news` endpoint
+- Opportunity scraper dedup: same check-then-insert pattern
+- ISR: `generateStaticParams` + `revalidate` on opps (3600s) and news (1800s) detail pages
+- Homepage stats fixed: 6 cards, full-ISO deadline comparison, govt counter works
+- Plausible analytics script added to layout.tsx
+- News image `onError` extracted to client `NewsImage` component (fixes SSG build)
 
 ### Immediate (Security)
 1. **Rotate and remove secrets from git**: Rotate `SUPABASE_SERVICE_ROLE_KEY`, `CRON_SECRET`, review admin password. Delete `.env.local` from git tracking, add to `.gitignore`. Consider using `git-filter-repo` to scrub history.
@@ -698,15 +713,15 @@ PROVIDER_ORDER: ["groq", "gemini", "openrouter", "cloudflare", "huggingface"]
 
 ### Short Term (Quality of Life)
 3. **Stronger admin password**: Generate a random one, store only in Vercel env.
-4. **Fix sitemap.ts inline `createClient`**: Use shared supabase instance instead.
 
 ### Medium Term (Features)
-5. **Create Telegram bot via @BotFather**: Add TELEGRAM_BOT_TOKEN env var to enable auto-posting.
-6. **Create Resend account**: Add RESEND_API_KEY + FROM_EMAIL to enable weekly digest.
-7. **Configure at least one AI provider**: Get a free Groq or Gemini API key to enable AI features.
-8. **Monitor scraper data quality**: Check for duplicates, stale entries, broken links.
+4. **Create Telegram bot via @BotFather**: Add TELEGRAM_BOT_TOKEN env var to enable auto-posting.
+5. **Create Resend account**: Add RESEND_API_KEY + FROM_EMAIL to enable weekly digest.
+6. **Configure at least one AI provider**: Get a free Groq or Gemini API key to enable AI features.
+7. **Set OPENAI_API_KEY env var**: Required by opencode.json config for OpenCode's own AI provider.
+8. **Run supabase-cleanup.sql**: Add unique constraint on news_articles.source_url, then hit POST /api/cleanup-news.
 
 ### Long Term (Architecture)
 9. **Move `supabase-migration.sql` to Supabase migrations folder**: Use proper migration tooling.
-10. **Add analytics**: Plausible or Umami for privacy-friendly usage tracking.
-11. **Consider ISR for opportunity pages**: Revalidate every few hours instead of SSR every request.
+10. **Persistent rate limiter**: Replace in-memory Map with DB-backed or Redis-based for production scale.
+11. **Add more scrapers**: Explore BEL, HAL, and other PSU websites (would need headless browser).

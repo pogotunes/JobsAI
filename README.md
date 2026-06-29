@@ -27,6 +27,9 @@ Open [http://localhost:3000](http://localhost:3000).
 - **AI Integration** — Smart search, opportunity matcher, chat assistant, summarizer, weekly digest
 - **Match** — Find opportunities matching your profile
 - **Email Digests** — Weekly newsletter with personalized recommendations
+- **ISR** — Detail pages pre-rendered statically, revalidated incrementally (opps 3600s, news 1800s)
+- **Rate Limiting** — 3 requests/IP/hour on subscribe endpoint
+- **News Dedup** — Check-then-insert by source_url with cleanup API
 
 ## Tech Stack
 
@@ -34,13 +37,14 @@ Open [http://localhost:3000](http://localhost:3000).
 - **Supabase** (PostgreSQL, Row Level Security)
 - **Tailwind CSS** (Dark theme)
 - **Vercel** (Deployment)
-- **AI** — Groq, Gemini, OpenRouter, Cloudflare Workers AI, HuggingFace
+- **AI** — Groq, Gemini, OpenRouter, Cloudflare Workers AI, HuggingFace (multi-provider failover)
+- **Analytics** — Plausible (privacy-first)
 
 ## Deploy
 
 1. Push to GitHub
 2. Import in [Vercel](https://vercel.com) (root: `electrobridge/`)
-3. Add environment variables
+3. Add environment variables (see `electrobridge/README.md`)
 4. Deploy
 
 ---

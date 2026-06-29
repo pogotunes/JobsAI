@@ -1,6 +1,6 @@
 # MASTER_CONTEXT.md — ElectroBridge
 **Ye file OpenCode / AI coding assistant ko har session ke shuru mein deni hai.**
-**Last updated:** June 2026 | **Audit version:** v2 (post-fixes)
+**Last updated:** June 2026 | **Audit version:** v3 (all 10 tasks complete)
 
 ---
 
@@ -121,6 +121,7 @@ electrobridge/src/
 │   ├── admin/
 │   │   ├── page.tsx                         -- Password-protected admin dashboard
 │   │   ├── add-news/page.tsx                -- Manually add news article
+│   │   ├── add-opportunity/page.tsx         -- Manually add opportunity
 │   │   └── edit-opportunity/[id]/page.tsx   -- Edit / soft-delete opportunity
 │   ├── about/page.tsx
 │   ├── categories/page.tsx
@@ -164,6 +165,7 @@ electrobridge/src/
 │       │   └── summarize/route.ts
 │       ├── calendar-export/[id]/route.ts    -- GET: .ics download
 │       ├── check-links/route.ts             -- POST: batch link check (cron)
+│       ├── cleanup-news/route.ts            -- POST: deduplicate news (Authorization: Bearer CRON_SECRET)
 │       ├── news/route.ts                    -- GET: paginated news
 │       ├── og/route.tsx                     -- GET: OG image
 │       ├── og/opportunity/[slug]/route.tsx
@@ -191,6 +193,7 @@ electrobridge/src/
 │   ├── Footer.tsx
 │   ├── LoadingSkeleton.tsx        -- Animated placeholder (used by loading.tsx files)
 │   ├── Navbar.tsx                 -- Top nav + mobile menu
+│   ├── NewsImage.tsx              -- Client image with fallback (onError handler)
 │   ├── NewsCard.tsx
 │   ├── OpportunityCard.tsx        -- Card: NEW badge, posted_at, org link
 │   ├── ReportIssueModal.tsx       -- Modal → report-issue API (sonner toast)
@@ -203,6 +206,7 @@ electrobridge/src/
 ├── lib/
 │   ├── supabase.ts                -- supabase + supabaseAdmin with isConfigured guard
 │   ├── email-digest.ts            -- Resend weekly digest (needs RESEND_API_KEY)
+│   ├── rate-limiter.ts            -- In-memory Map rate limiter (3 req/IP/hr on subscribe)
 │   ├── telegram-bot.ts            -- Telegram posting (needs TELEGRAM_BOT_TOKEN)
 │   ├── types.ts                   -- Core types (may overlap with types/index.ts)
 │   ├── ai/
@@ -264,7 +268,11 @@ HUGGINGFACE_API_KEY    -- optional AI fallback
 - All pages load (homepage, opportunities, news, detail pages, organizations, categories, resources)
 - Scrapers: ISRO, DRDO, CSIR, 10 news RSS sources (560 news articles in DB)
 - Admin dashboard with password protection
-- Admin: edit/delete opportunity, add news article
+- Admin: edit/delete opportunity, add news article, add opportunity
+- ISR with generateStaticParams + revalidate on detail pages (opps 3600s, news 1800s)
+- Rate limiting on subscribe API (3 req/IP/hour)
+- News dedup (check-then-insert by source_url + /api/cleanup-news endpoint)
+- Plausible analytics script in layout.tsx
 - Apply click tracking
 - Issue reporting with toast feedback
 - Email subscription form with toast feedback + validation
@@ -293,10 +301,9 @@ HUGGINGFACE_API_KEY    -- optional AI fallback
 - Cron secret is weak (change in Vercel env)
 
 ### 📝 Minor remaining issues
-- `sitemap.ts` uses inline `createClient` instead of shared supabase instance
-- No rate limiting on `/api/scrape` and `/api/subscribe`
 - FindAPhD RSS blocked by Cloudflare (gracefully returns 0 — not breaking)
 - BEL/HAL not scrapable (JS SPAs)
+- In-memory rate limiter resets on server restart (consider persistent store for production)
 
 ---
 
@@ -314,9 +321,15 @@ HUGGINGFACE_API_KEY    -- optional AI fallback
   .select("*", { count: "exact", head: true })
   .eq("is_active", true)
 
-// Scraper upsert (no duplicates)
-.from("opportunities")
-  .upsert(items, { onConflict: "title,organization" })
+// Scraper check-then-insert (no duplicates — by source_url)
+const { data: existing } = await supabaseAdmin
+  .from("opportunities")
+  .select("id")
+  .eq("source_url", item.source_url)
+  .maybeSingle()
+if (!existing) {
+  await supabaseAdmin.from("opportunities").insert(item)
+}
 
 // Toast pattern (sonner)
 import { toast } from "sonner"
@@ -337,8 +350,10 @@ toast.error("Something went wrong.")
 7. Use `sonner` toast for all user action feedback
 8. Admin password is `process.env.NEXT_PUBLIC_ADMIN_PASSWORD` — never hardcode
 9. All new API routes must check `CRON_SECRET` if called by cron jobs
+10. Rate limit public POST endpoints using `rate-limiter.ts`
+11. Validate/sanitize all user input (email regex, UUID check, length limits)
 
 ---
 
 *ElectroBridge — India's trusted electronics career platform*
-*Context file v2 — June 2026*
+*Context file v3 — June 2026 (all 10 tasks complete)*

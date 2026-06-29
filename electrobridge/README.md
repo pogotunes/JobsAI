@@ -43,10 +43,15 @@ Your gateway to electronics & semiconductor opportunities in India and globally.
 ### Other Features
 - Organization pages (per-org opportunity listings)
 - Find My Match (profile-based matching)
-- Admin panel (add/edit/expire opportunities, view subscribers, AI analytics, trigger scrapes)
+- Admin panel (add/edit/expire opportunities, add news, add opportunity, view subscribers, AI analytics, trigger scrapes)
 - Weekly email digests
 - Contact/suggestions form
 - Full SEO with JSON-LD schemas, sitemap, Open Graph
+- ISR (Incremental Static Regeneration) on detail pages (3600s opps, 1800s news)
+- Input validation (email regex, UUID check, 500-char limit on reports)
+- Rate limiting (3 requests/IP/hour on subscribe API)
+- Plausible analytics (privacy-first)
+- News dedup (check-then-insert by source_url + cleanup API endpoint)
 
 ## Getting Started
 
@@ -81,6 +86,7 @@ CRON_SECRET=mysecretcron2026
 # AI Providers (optional — each is auto-detected)
 GROQ_API_KEY=
 GEMINI_API_KEY=
+OPENAI_API_KEY=
 OPENROUTER_API_KEY=
 HUGGINGFACE_API_KEY=
 CLOUDFLARE_AI_TOKEN=
@@ -128,8 +134,10 @@ Tabs:
 | `/api/opportunities/[id]` | GET/PATCH/DELETE | Single opportunity CRUD |
 | `/api/news` | GET | List news articles (search, tag, limit) |
 | `/api/news/scrape` | GET | Trigger RSS scrape (protected) |
-| `/api/subscribe` | POST | Subscribe email |
+| `/api/subscribe` | POST | Subscribe email (rate limited: 3/IP/hr) |
 | `/api/subscribe?email=` | DELETE | Unsubscribe |
+| `/api/cleanup-news` | POST | Deduplicate news by source_url (protected) |
+| `/api/report-issue` | POST | Report broken link (UUID + 500-char validation) |
 | `/api/seed` | GET | Seed sample data |
 | `/api/ai/match` | POST | AI opportunity matcher |
 | `/api/ai/search` | GET | AI smart search |
@@ -140,4 +148,4 @@ Tabs:
 
 ## RSS News Sources
 
-The scraper fetches from 18 sources: IEEE Spectrum, Semiconductor Engineering, EE Times, Electronics Weekly, Chip Design Magazine, SemiWiki, Electronics For You, AnandTech, The Register, Nature Electronics, Science Daily (Semiconductors & Electronics), Phys.org (Semiconductors & Electronics), India Semiconductor Mission, IESA News, and more.
+The scraper fetches from 10 RSS sources: IEEE Spectrum, EE Times, Semiconductor Engineering, Electronics Weekly, The Hindu Science, Physics World, Nature Electronics, Economic Times Tech, Times of India Science, Hindustan Times Tech — plus 3 HTML scrapers (ISRO, DRDO, CSIR).

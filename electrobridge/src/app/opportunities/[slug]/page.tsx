@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, MapPin, Currency, Calendar, ExternalLink, Clock, Briefcase, GraduationCap, CalendarDays, User, Bookmark, Share2 } from "lucide-react";
+import { ArrowLeft, MapPin, Currency, Calendar, ExternalLink, Clock, Briefcase, GraduationCap, CalendarDays, User, Bookmark, Share2, BookmarkCheck } from "lucide-react";
 import { supabaseAdmin } from "@/lib/supabase";
 import { formatDate, isExpired } from "@/lib/utils";
 import CategoryBadge from "@/components/CategoryBadge";
@@ -188,7 +188,7 @@ export default async function OpportunityDetailPage({ params }: Props) {
                 <span className="text-accent text-sm font-bold">{getInitials(opportunity.organization)}</span>
               </div>
               <div className="flex-1 min-w-0">
-                <h1 className="font-display text-xl font-bold text-text-primary">{opportunity.title}</h1>
+                <h1 className="font-display text-xl sm:text-2xl font-bold text-text-primary">{opportunity.title}</h1>
                 <p className="text-text-secondary text-sm mt-0.5">{opportunity.organization}</p>
                 <div className="flex items-center gap-2 mt-3 flex-wrap">
                   <CategoryBadge category={opportunity.category} />
@@ -392,6 +392,72 @@ export default async function OpportunityDetailPage({ params }: Props) {
             <CopyLinkButton url={`https://electrobridge.vercel.app/opportunities/${opportunity.slug}`} />
           </div>
         </div>
+      </div>
+
+      {/* Mobile Save/Share/Quick Facts (visible below lg) */}
+      <div className="lg:hidden mt-6 space-y-4">
+        {opportunity.apply_link && (
+          <ApplyButton
+            applyLink={opportunity.apply_link}
+            opportunityId={opportunity.id!}
+            verificationStatus={opportunity.verification_status}
+            officialPageUrl={opportunity.official_page_url}
+          />
+        )}
+        {opportunity.official_page_url && opportunity.apply_link !== opportunity.official_page_url && (
+          <a
+            href={opportunity.official_page_url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center justify-center gap-2 border border-border text-text-primary font-medium rounded-lg px-4 py-2.5 text-sm hover:border-accent/50 transition-colors w-full"
+          >
+            <ExternalLink className="w-4 h-4" />
+            Official Website
+          </a>
+        )}
+        <div className="flex gap-2">
+          <span className="flex-1 inline-flex items-center justify-center gap-2 border border-border text-text-primary font-medium rounded-lg px-4 py-2.5 text-sm">
+            <Bookmark className="w-4 h-4" /> Save
+          </span>
+          <span className="flex-1 inline-flex items-center justify-center gap-2 border border-border text-text-primary font-medium rounded-lg px-4 py-2.5 text-sm">
+            <Share2 className="w-4 h-4" /> Share
+          </span>
+        </div>
+        <div className="bg-surface-elevated border border-border rounded-xl p-4">
+          <h3 className="font-display text-xs font-bold text-text-muted uppercase tracking-wider mb-3">Quick Facts</h3>
+          <div className="grid grid-cols-2 gap-3 text-xs">
+            {opportunity.location && (
+              <div><span className="text-text-muted">Location</span><p className="text-text-primary font-medium">{opportunity.location}</p></div>
+            )}
+            {opportunity.category && (
+              <div><span className="text-text-muted">Type</span><p className="text-text-primary font-medium">{opportunity.category}</p></div>
+            )}
+            {opportunity.deadline && (
+              <div><span className="text-text-muted">Deadline</span><p className="text-text-primary font-medium">{formatDate(opportunity.deadline)}</p></div>
+            )}
+            {opportunity.stipend && (
+              <div><span className="text-text-muted">Stipend</span><p className="text-text-primary font-medium">{opportunity.stipend}</p></div>
+            )}
+            <div><span className="text-text-muted">Org. Type</span><p className="text-text-primary font-medium">{orgType}</p></div>
+          </div>
+        </div>
+        {opportunity.id && (
+          <a
+            href={`/api/calendar-export/${opportunity.id}`}
+            className="inline-flex items-center justify-center gap-2 border border-border text-text-primary font-medium rounded-lg px-4 py-2.5 text-sm hover:border-accent/50 transition-colors w-full"
+            download
+          >
+            <Calendar className="w-4 h-4" />
+            Add to Calendar
+          </a>
+        )}
+        <ShareButtons
+          title={opportunity.title}
+          organization={opportunity.organization}
+          deadline={opportunity.deadline}
+          opportunityUrl={`https://electrobridge.vercel.app/opportunities/${opportunity.slug}`}
+        />
+        <CopyLinkButton url={`https://electrobridge.vercel.app/opportunities/${opportunity.slug}`} />
       </div>
 
       {/* AI Summary */}

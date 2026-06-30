@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Zap, Menu, X, ChevronDown, Home, Briefcase, Newspaper, Crosshair, Bot, Info, Bell, User, LogOut, LayoutDashboard } from "lucide-react";
+import { Zap, Menu, X, ChevronDown, Home, Briefcase, Newspaper, Crosshair, Bot, Info, User, LogOut, LayoutDashboard } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import type { User as SupabaseUser } from "@supabase/supabase-js";
 
@@ -215,22 +215,19 @@ export default function Navbar() {
             })}
           </div>
 
-          <div className="hidden md:flex items-center gap-2">
-            <button className="w-9 h-9 rounded-lg bg-surface-elevated/50 border border-border flex items-center justify-center text-text-secondary hover:text-accent hover:border-accent/30 transition-all">
-              <Bell className="w-4 h-4" />
-            </button>
+          <div className="hidden md:flex items-center gap-1.5 sm:gap-2">
             {user ? (
               <div className="relative" ref={userMenuRef}>
                 <button
                   onClick={() => setUserDropdownOpen(!userDropdownOpen)}
-                  className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-text-secondary border border-border rounded-lg hover:text-accent hover:border-accent/30 transition-all"
+                  className="flex items-center gap-1.5 px-2.5 py-2 text-sm font-medium text-text-secondary border border-border rounded-lg hover:text-accent hover:border-accent/30 transition-all"
                 >
                   <div className="w-6 h-6 rounded-full bg-accent/20 flex items-center justify-center">
                     <span className="text-accent text-xs font-bold">
                       {getInitials(user.user_metadata?.full_name, user.email)}
                     </span>
                   </div>
-                  <span className="max-w-[100px] truncate">{userDisplayName}</span>
+                  <span className="hidden lg:inline max-w-[100px] truncate">{userDisplayName}</span>
                 </button>
                 {userDropdownOpen && (
                   <div className="absolute right-0 top-full mt-1 w-48 bg-surface border border-border rounded-xl shadow-card-dark py-2 z-50">
@@ -265,13 +262,13 @@ export default function Navbar() {
               <>
                 <Link
                   href="/login"
-                  className="px-3 py-2 text-sm font-medium text-text-secondary border border-border rounded-lg hover:text-text-primary hover:border-accent/30 transition-all"
+                  className="px-2.5 sm:px-3 py-2 text-xs sm:text-sm font-medium text-text-secondary border border-border rounded-lg hover:text-text-primary hover:border-accent/30 transition-all"
                 >
                   Login
                 </Link>
                 <Link
                   href="/signup"
-                  className="px-3 py-2 text-sm font-medium bg-accent text-bg-primary rounded-lg hover:bg-accent-hover transition-all"
+                  className="px-2.5 sm:px-3 py-2 text-xs sm:text-sm font-medium bg-accent text-bg-primary rounded-lg hover:bg-accent-hover transition-all"
                 >
                   Sign Up
                 </Link>
@@ -279,7 +276,7 @@ export default function Navbar() {
             )}
             <Link
               href="/admin"
-              className="px-3 py-2 text-sm font-medium bg-accent text-bg-primary rounded-lg hover:bg-accent-hover transition-all"
+              className="px-2.5 sm:px-3 py-2 text-xs sm:text-sm font-medium bg-accent text-bg-primary rounded-lg hover:bg-accent-hover transition-all"
             >
               Admin
             </Link>

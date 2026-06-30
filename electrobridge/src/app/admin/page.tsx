@@ -211,20 +211,20 @@ export default function AdminPage() {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       {/* Header row */}
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-3">
-          <h1 className="font-display text-2xl font-bold text-text-primary">Admin Panel</h1>
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-6">
+        <div className="flex items-center gap-3 flex-wrap">
+          <h1 className="font-display text-xl sm:text-2xl font-bold text-text-primary">Admin Panel</h1>
           <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-success/20 text-success rounded-full text-xs font-medium border border-success/30">
             <span className="w-1.5 h-1.5 rounded-full bg-success" />
             System Normal
           </span>
         </div>
-        <div className="flex gap-2">
-          <Link href="/admin/add-opportunity" className="flex items-center gap-2 bg-accent/20 text-accent border border-accent/30 rounded-lg px-4 py-2 text-sm font-medium hover:bg-accent/30 transition-colors">
-            <Plus className="w-4 h-4" /> Add Opportunity
+        <div className="flex gap-2 w-full sm:w-auto">
+          <Link href="/admin/add-opportunity" className="flex-1 sm:flex-initial flex items-center justify-center gap-2 bg-accent/20 text-accent border border-accent/30 rounded-lg px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium hover:bg-accent/30 transition-colors">
+            <Plus className="w-4 h-4" /> Add
           </Link>
-          <Link href="/admin/add-news" className="flex items-center gap-2 bg-accent/20 text-accent border border-accent/30 rounded-lg px-4 py-2 text-sm font-medium hover:bg-accent/30 transition-colors">
-            <Plus className="w-4 h-4" /> Add News
+          <Link href="/admin/add-news" className="flex-1 sm:flex-initial flex items-center justify-center gap-2 bg-accent/20 text-accent border border-accent/30 rounded-lg px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium hover:bg-accent/30 transition-colors">
+            <Plus className="w-4 h-4" /> News
           </Link>
         </div>
       </div>

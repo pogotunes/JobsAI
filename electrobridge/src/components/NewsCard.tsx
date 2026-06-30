@@ -55,7 +55,7 @@ export default function NewsCard({ article }: NewsCardProps) {
       href={article.source_url || "#"}
       target="_blank"
       rel="noopener noreferrer"
-      className="bg-[#1A2438] border border-[#1F2937] rounded-xl p-4 hover:border-[#00E5FF]/30 transition-all duration-200 hover:-translate-y-0.5 block group"
+      className="bg-surface border border-border rounded-xl p-4 hover:border-accent/30 transition-all duration-200 hover:-translate-y-0.5 block group"
     >
       <div className="flex items-start gap-3">
         {article.image_url && !imgError ? (
@@ -66,21 +66,21 @@ export default function NewsCard({ article }: NewsCardProps) {
             onError={() => setImgError(true)}
           />
         ) : (
-          <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-[#00E5FF]/10 to-purple/10 flex items-center justify-center flex-shrink-0">
-            <Newspaper className="w-6 h-6 text-[#00E5FF]/60" />
+          <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-accent/10 to-purple/10 flex items-center justify-center flex-shrink-0">
+            <Newspaper className="w-6 h-6 text-accent/60" />
           </div>
         )}
         <div className="flex-1 min-w-0">
-          <h3 className="text-white text-sm font-semibold line-clamp-2 leading-snug group-hover:text-[#00E5FF]">
+          <h3 className="text-text-primary text-sm font-semibold line-clamp-2 leading-snug group-hover:text-accent">
             {article.title}
           </h3>
           <div className="flex items-center gap-3 mt-2 flex-wrap">
-            <span className="inline-flex items-center gap-1.5 px-2 py-0.5 bg-[#0B1120] border border-[#1F2937]/50 rounded text-[10px] font-medium text-[#94A3B8]">
+            <span className="inline-flex items-center gap-1.5 px-2 py-0.5 bg-bg-primary border border-border/50 rounded text-[10px] font-medium text-text-secondary">
               <span className={`w-2 h-2 rounded-full ${sourceDotColor}`} />
               {article.source}
             </span>
             {article.published_at && (
-              <span className="flex items-center gap-1 text-[#94A3B8] text-[10px]">
+              <span className="flex items-center gap-1 text-text-secondary text-[10px]">
                 <Clock className="w-3 h-3" />
                 {timeAgo(article.published_at)}
               </span>
@@ -91,22 +91,22 @@ export default function NewsCard({ article }: NewsCardProps) {
               {tags.slice(0, 2).map((tag: string) => (
                 <span
                   key={tag}
-                  className="px-1.5 py-0.5 bg-[#00E5FF]/20 text-[#00E5FF] rounded text-[9px] font-medium border border-[#00E5FF]/15"
+                    className="px-1.5 py-0.5 bg-accent/20 text-accent rounded text-[9px] font-medium border border-accent/15"
                 >
                   {tag}
                 </span>
               ))}
               {tags.length > 2 && (
-                <span className="text-[9px] text-[#94A3B8]">+{tags.length - 2}</span>
+                <span className="text-[9px] text-text-secondary">+{tags.length - 2}</span>
               )}
             </div>
           )}
           {article.summary && (
-            <p className="text-[#94A3B8] text-xs mt-2 line-clamp-2">
+            <p className="text-text-secondary text-xs mt-2 line-clamp-2">
               {article.summary}
             </p>
           )}
-          <div className="flex items-center gap-1 mt-2 text-[#00E5FF] text-[10px] font-medium opacity-0 group-hover:opacity-100">
+          <div className="flex items-center gap-1 mt-2 text-accent text-[10px] font-medium opacity-0 group-hover:opacity-100">
             Read More <ExternalLink className="w-3 h-3" />
           </div>
         </div>

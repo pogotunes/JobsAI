@@ -116,10 +116,10 @@ export default function DashboardPage() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
         <div>
-          <h1 className="font-display text-3xl font-bold text-text-primary flex items-center gap-3">
-            <LayoutDashboard className="w-8 h-8 text-accent" />
+          <h1 className="font-display text-2xl sm:text-3xl font-bold text-text-primary flex items-center gap-3">
+            <LayoutDashboard className="w-7 h-7 sm:w-8 sm:h-8 text-accent" />
             My Dashboard
           </h1>
           <p className="text-text-secondary mt-1 text-sm">
@@ -128,7 +128,7 @@ export default function DashboardPage() {
         </div>
         <Link
           href="/profile"
-          className="flex items-center gap-2 bg-accent text-bg-primary font-semibold rounded-lg px-4 py-2.5 text-sm hover:bg-accent-hover transition-all"
+          className="flex items-center justify-center gap-2 bg-accent text-bg-primary font-semibold rounded-lg px-4 py-2.5 text-sm hover:bg-accent-hover transition-all w-full sm:w-auto"
         >
           <FileText className="w-4 h-4" />
           Build Resume
@@ -199,8 +199,8 @@ export default function DashboardPage() {
             ) : (
               <div className="space-y-3">
                 {applications.map((app) => (
-                  <div key={app.id} className="flex items-center gap-4 p-3 bg-bg-primary rounded-lg border border-border/50">
-                    <div className="w-9 h-9 rounded-full bg-accent/20 flex items-center justify-center flex-shrink-0">
+                  <div key={app.id} className="flex items-start sm:items-center gap-3 p-3 bg-bg-primary rounded-lg border border-border/50">
+                    <div className="w-9 h-9 rounded-full bg-accent/20 flex items-center justify-center flex-shrink-0 mt-0.5 sm:mt-0">
                       <span className="text-accent text-xs font-bold">{getInitials(app.opportunity?.organization || "")}</span>
                     </div>
                     <div className="flex-1 min-w-0">
@@ -210,7 +210,7 @@ export default function DashboardPage() {
                       >
                         {app.opportunity?.title}
                       </Link>
-                      <div className="flex items-center gap-2 mt-0.5">
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 mt-0.5">
                         <Link
                           href={`/organizations/${orgSlug(app.opportunity?.organization || "")}`}
                           className="text-text-muted text-xs hover:text-accent"
@@ -225,7 +225,7 @@ export default function DashboardPage() {
                         )}
                       </div>
                     </div>
-                    <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium border ${STATUS_STYLES[app.status] || STATUS_STYLES.applied}`}>
+                    <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium border whitespace-nowrap flex-shrink-0 ${STATUS_STYLES[app.status] || STATUS_STYLES.applied}`}>
                       {STATUS_LABELS[app.status] || app.status}
                     </span>
                   </div>

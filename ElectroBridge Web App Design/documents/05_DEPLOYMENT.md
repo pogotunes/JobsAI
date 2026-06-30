@@ -39,22 +39,35 @@ Node version: 20.x
 ```
 
 ### Environment Variables
-Set via Netlify dashboard:
-- `NEXT_PUBLIC_SUPABASE_URL`
-- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-- `NEXT_PUBLIC_SITE_URL`
-- `NEXT_PUBLIC_ADMIN_PASSWORD`
+Set via Netlify CLI (all contexts):
+- `NEXT_PUBLIC_SUPABASE_URL` — `https://jbqjipwanfsxyqkfrrpx.supabase.co`
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY` — Supabase anon JWT
+- `NEXT_PUBLIC_SITE_URL` — `https://electrobridge.netlify.app`
+- `NEXT_PUBLIC_ADMIN_PASSWORD` — `electrobridge2026`
 
 ## Backend Deployment (Render)
 
-### Web Service
+### Web Service (Already Deployed)
 ```
 Name: electrobridge-api
-Runtime: Docker / Node
+ID: srv-d91ojvi8qa3s73b00na0
+URL: https://electrobridge-api.onrender.com
+Runtime: Node
 Build Command: npm install && npm run build
 Start Command: npm start
 Health Check Path: /health
+Repo: https://github.com/amitkr26/JobsAI
+Root Dir: ElectroBridge Web App Design/backend
+Region: Oregon (us-east)
+Plan: Free
 ```
+
+### Env Vars Set (2026-06-30)
+Set via Render API (`PUT /v1/services/{id}/env-vars/{key}`):
+- `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `NEON_DATABASE_URL`
+- `RESEND_API_KEY`, `FROM_EMAIL`, `CRON_SECRET`
+- `NODE_ENV=production`, `LOG_LEVEL=info`
+- **Missing**: `GROQ_API_KEY`, `GEMINI_API_KEY` (needs user to provide)
 
 ### Cron Jobs (Render Cron)
 ```
@@ -70,18 +83,25 @@ Type: Background Worker
 Command: npm run worker
 ```
 
-## Database Setup
+## Database Setup (Complete)
 
 ### Supabase
-1. Create project at supabase.com
-2. Run migration files in order
-3. Enable RLS policies
-4. Set up auth providers (email/password)
+- **Project**: `ElectroBridge` (ref: `jbqjipwanfsxyqkfrrpx`)
+- **Region**: Southeast Asia (Singapore)
+- **Status**: ✅ Linked via CLI, migrations pushed
+- **Migrations applied**:
+  - `20260630000001_base_schema.sql` — 11 tables (opportunities, news_articles, subscribers, user_profiles, saved_opportunities, applications, user_alerts, ai_usage_log, link_check_logs, opportunity_reports, suggestions)
+  - `20260630000002_extensions.sql` — pgcrypto, slug auto-generation trigger
+  - `20260630000003_rls_policies.sql` — RLS policies for all tables
+- **Auth**: Email/password ready (not yet configured)
 
 ### Neon
-1. Create project at neon.tech
-2. Run schema migrations
-3. Set up connection pooling
+- **Project**: `electrobridge` (id: `raspy-mouse-45454356`)
+- **Region**: us-east-1 (AWS)
+- **Branch**: `production` (primary)
+- **Database**: `neondb`, Role: `neondb_owner`
+- **Connection**: Pooled via `ep-shy-resonance-atwa1cr9-pooler`
+- **Analytics schema**: Not yet applied
 
 ## CI/CD
 

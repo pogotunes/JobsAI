@@ -117,7 +117,7 @@ root/
 │       │       ├── csir-scraper.ts     # CSIR website scraper
 │       │       ├── drdo-scraper.ts     # DRDO website scraper
 │       │       ├── isro-scraper.ts     # ISRO website scraper
-│       │       └── govt-scraper.ts     # Govt jobs orchestrator (DRDO + CSIR RSS)
+│       │       └── govt-scraper.ts     # Govt jobs orchestrator (CSIR RSS only; DRDO moved to opportunity-scraper.ts)
 │       ├── components/
 │       │   ├── Navbar.tsx              # Navigation bar with dropdowns
 │       │   ├── Footer.tsx              # Site footer
@@ -683,14 +683,14 @@ root/
 - **File:** `src/app/api/scrape/route.ts`
 - **Auth:** Bearer CRON_SECRET
 - **Query params:** mode (all, news, opportunities)
-- **What it does:** Runs RSS news scraper + opportunity scrapers, deduplicates by source_url, inserts new
+- **What it does:** Runs RSS news scraper + opportunity scrapers (ISRO, CSIR, DRDO — now explicit, CSIR RSS via GovtJobs), deduplicates by source_url, inserts new
 - **Response:** `{ message, news: { total_fetched, inserted, skipped }, opportunities: { sources, total_fetched, inserted, skipped } }`
 
-### `GET /api/scrape-jobs`
+### `GET /api/scrape-jobs` (DEPRECATED)
 - **File:** `src/app/api/scrape-jobs/route.ts`
 - **Auth:** Bearer CRON_SECRET
-- **What it does:** Runs govt job scrapers (DRDO + CSIR RSS), deduplicates, inserts
-- **Response:** `{ message, sources, total_fetched, inserted, skipped }`
+- **What it does:** Runs govt job scrapers (CSIR RSS only — DRDO moved to main /api/scrape). Returns deprecation_notice in response.
+- **Response:** `{ message, deprecation_notice, sources, total_fetched, inserted, skipped }`
 
 ### `GET /api/scrape-opportunities`
 - **File:** `src/app/api/scrape-opportunities/route.ts`
@@ -775,7 +775,7 @@ root/
 
 ### `FilterBar.tsx`
 - **Props:** `{ selectedCategory, selectedEligibility, selectedLocation, selectedDeadline, onCategoryChange, onEligibilityChange, onLocationChange, onDeadlineChange }`
-- **What it renders:** 4-column grid of select dropdowns for category, eligibility, location, deadline filters.
+- **What it renders:** Vertical sidebar layout with checkbox groups (Job Type, Degree, Location) + deadline select dropdown. "Clear all" link when filters active.
 - **Dependencies:** lib/utils (CATEGORIES, ELIGIBILITY_OPTIONS, LOCATIONS, DEADLINE_FILTERS)
 
 ### `SearchBar.tsx`
@@ -789,8 +789,8 @@ root/
 - **Dependencies:** lib/utils (cn, CATEGORY_COLORS)
 
 ### `DeadlineCountdown.tsx`
-- **Props:** `{ deadline: string }`
-- **What it renders:** Live countdown (updates every 60s). Shows "Expired" (gray), "🔥 Last X days!" (red + pulse, days ≤ 3), "⚡ Closes in X days" (orange, days ≤ 7), or "X days left" (muted text).
+- **Props:** `{ deadline: string, variant?: "badge" | "progress" }`
+- **What it renders:** Badge variant: "Expired" (gray), "Last X days!" (red + pulse, days ≤ 3), "Closes in X days" (orange, days ≤ 7), or "X days left" (muted). Progress variant: horizontal gradient bar showing urgency visually.
 - **Dependencies:** lib/utils (getDaysUntilDeadline, isExpired, cn)
 
 ### `VerificationBadge.tsx`
@@ -943,7 +943,7 @@ root/
 - Most resource guide pages fetch latest 3 opportunities as "live feed" but default to empty state gracefully.
 
 ### API routes defined but not called from anywhere
-- `/api/scrape-jobs` — defined but not called by any cron or UI (scrape-jobs functionality overlaps with main `/api/scrape`)
+- ~~`/api/scrape-jobs` — defined but not called by any cron or UI (scrape-jobs functionality overlaps with main `/api/scrape`)~~ ✅ **DEPRECATED**: Now returns `deprecation_notice` in response. DRDO moved to main `/api/scrape` endpoint.
 - `/api/admin/recheck-link` — called from admin verification tab
 - `/api/seed` — called manually to seed initial data
 - `/api/seed-news` — separate from main scrape, called manually
@@ -958,7 +958,7 @@ root/
 6. **`checkRateLimit` is in-memory only** — resets on server restart, no persistent storage. Rate limit resets if serverless function cold starts.
 7. **News dedup cleanup (`POST /api/cleanup-news`)** — keeps oldest duplicate by `created_at`. Should consider keeping newest article instead with the most metadata.
 8. **No Supabase Auth integration** — user-specific features (bookmarks, saved_opportunities) use localStorage instead of server-side auth.
-9. **DRDO scraper (`drdo-scraper.ts`)** — imported only via `govt-scraper.ts` which is only called from `scrape-jobs/route.ts`. The main `/api/scrape` endpoint does NOT include govt scrapers, only `scrapeAllOpportunities()` (which includes ISRO + CSIR scrapers but NOT DRDO).
+9. ~~**DRDO scraper (`drdo-scraper.ts`)** — imported only via `govt-scraper.ts` which is only called from `scrape-jobs/route.ts`. The main `/api/scrape` endpoint does NOT include govt scrapers, only `scrapeAllOpportunities()` (which includes ISRO + CSIR scrapers but NOT DRDO).~~ ✅ **FIXED**: DRDO is now an explicit first-class source in `scrapeAllOpportunities()` (imported directly in `opportunity-scraper.ts`). Removed from `govt-scraper.ts` to prevent double-scraping. `/api/scrape-jobs` deprecated.
 
 ---
 
@@ -991,6 +991,10 @@ root/
 - ✅ **Organization pages** — Per-org listing with counts
 - ✅ **Share buttons** — WhatsApp, Twitter, LinkedIn, Email
 - ✅ **Favorites/bookmarks** — localStorage-based bookmarking
+- ✅ **Figma-based UI redesign** — All 16 pages and components refactored to exact Figma specs (bg-primary #0A0E1A, surface #111827, accent #22D3EE, Space Grotesk + Inter typography)
+- ✅ **Deadline progress bar** — New `variant="progress"` with gradient urgency bar for detail pages
+- ✅ **Org-colored avatars** — Consistent color mapping per organization (ISRO, Intel, TIFR, Tata, DRDO)
+- ✅ **DRDO in main scrape** — DRDO is now an explicit source in `/api/scrape?mode=opportunities` with its own result entry
 
 ### Partially implemented features
 - ⚠️ **CRM secret auth** — Used consistently but some endpoints lack proper error messages
@@ -1008,7 +1012,6 @@ root/
 - ❌ **Multi-language support** — English only
 - ❌ **Advanced filtering** — No salary range filter, no date range filter
 - ❌ **Email templates** — Basic HTML email, no rich design
-- ❌ **DRDO opportunities in main scrape** — `/api/scrape` doesn't include DRDO; DRDO scrape is only in `/api/scrape-jobs`
 
 ---
 

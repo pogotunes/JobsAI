@@ -1011,6 +1011,7 @@ root/
 | `OPENROUTER_API_KEY` | Private | `lib/ai/providers.ts` | OpenRouter API key |
 | `HUGGINGFACE_API_KEY` | Private | `lib/ai/providers.ts` | HuggingFace API key |
 | `CLOUDFLARE_AI_TOKEN` | Private | `lib/ai/providers.ts` | Cloudflare Workers AI token |
+| `AWS_BEARER_TOKEN_BEDROCK` | Private | `lib/ai/providers.ts` | AWS Bedrock Mantle API key (base64 `MantleApiKey-…` token) |
 | `CLOUDFLARE_ACCOUNT_ID` | Private | `lib/ai/providers.ts` | Cloudflare account ID |
 | `RESEND_API_KEY` | Private | `lib/email-digest.ts` | Resend email API key |
 | `FROM_EMAIL` | Private | `lib/email-digest.ts` | Sender email for digest (default: digest@electrobridge.vercel.app) |
@@ -1025,7 +1026,8 @@ root/
 | Service | Files | What For |
 |---------|-------|----------|
 | **Supabase** | `lib/supabase.ts`, most API routes, all components with data fetching | Database (PostgreSQL), RLS auth, admin client |
-| **Groq AI** | `lib/ai/providers.ts` (callGroq) | Primary AI provider (fastest, 14,400 req/day free, Llama 3.1 8B Instant) |
+| **AWS Bedrock Mantle** | `lib/ai/providers.ts` (callBedrock) | Primary AI provider (provisioned, OpenAI-compatible endpoint, uses `openai.gpt-oss-120b`, first in fallback chain) |
+| **Groq AI** | `lib/ai/providers.ts` (callGroq) | Secondary AI provider (14,400 req/day free, Llama 3.1 8B Instant) |
 | **NVIDIA NIM** | `lib/ai/providers.ts` (callNvidia, callNvidiaAdvanced) | High quality AI (Llama 3.1 8B Instruct + Mistral 7B), second in fallback chain |
 | **Gemini** | `lib/ai/providers.ts` (callGemini) | AI backup (Gemini 1.5 Flash, 1,500 req/day) |
 | **OpenRouter** | `lib/ai/providers.ts` (callOpenRouter) | AI backup (Llama 3.1 8B Free, ~50 req/day) |
@@ -1094,7 +1096,7 @@ root/
 - ✅ **News aggregation** — 18 RSS sources + AI filtering + dedup
 - ✅ **Category pages** — 7 categories with SEO + live counts
 - ✅ **Resource guides** — 5 guide pages (JRF, PhD, VLSI, Fellowships, NET vs GATE)
-- ✅ **Multi-provider AI engine** — 6 providers in fallback chain with usage logging
+- ✅ **Multi-provider AI engine** — 7 providers in fallback chain with usage logging (Bedrock first, then Groq, NVIDIA, Gemini, OpenRouter, Cloudflare, HuggingFace)
 - ✅ **AI Smart Search** — Natural language → structured filters
 - ✅ **AI Opportunity Matcher** — Profile-based matching with scored results
 - ✅ **AI Chatbot** — `/chat` page with full conversation
@@ -1111,7 +1113,7 @@ root/
 - ✅ **Calendar export** — .ics download with deadline + alarm
 - ✅ **Telegram notifications** — Posts on new opportunity creation
 - ✅ **UI design system** — Full Figma-based dark theme with Space Grotesk + Inter
-- ✅ **Mobile responsive** — All pages responsive with hamburger menu
+- ✅ **Mobile responsive** — All pages responsive with hamburger menu, mobile inline sidebar on opportunity detail pages (Apply/Save/Share/Quick Facts on screens < lg)
 - ✅ **ISR** — Detail pages revalidated (opps 3600s, news 1800s)
 - ✅ **Organization pages** — Per-org listing with counts
 - ✅ **Share buttons** — WhatsApp, Twitter, LinkedIn, Email
@@ -1398,7 +1400,7 @@ root/
 ### `src/lib/ai/providers.ts`
 
 #### `AIProvider`
-Union type: `"groq" | "nvidia" | "gemini" | "openrouter" | "cloudflare" | "huggingface"`
+Union type: `"bedrock" | "groq" | "nvidia" | "gemini" | "openrouter" | "cloudflare" | "huggingface"`
 
 #### `AIResponse`
 | Field | Type |

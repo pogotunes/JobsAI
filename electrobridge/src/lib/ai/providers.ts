@@ -46,7 +46,7 @@ const PROVIDER_ORDER: AIProvider[] = [
 ];
 
 const PROVIDER_MODELS: Record<AIProvider, string> = {
-  bedrock: "amazon.nova-lite-v1:0",
+  bedrock: "openai.gpt-oss-120b",
   groq: "llama-3.1-8b-instant",
   nvidia: "meta/llama-3.1-8b-instruct",
   gemini: "gemini-1.5-flash",
@@ -57,7 +57,7 @@ const PROVIDER_MODELS: Record<AIProvider, string> = {
 
 async function callBedrock(prompt: string, systemPrompt?: string): Promise<string> {
   const response = await fetch(
-    "https://bedrock-runtime.us-east-1.amazonaws.com/model/amazon.nova-lite-v1:0/converse",
+    "https://bedrock-mantle.us-east-1.api.aws/v1/chat/completions",
     {
       method: "POST",
       headers: {
@@ -65,9 +65,13 @@ async function callBedrock(prompt: string, systemPrompt?: string): Promise<strin
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        messages: [{ role: "user", content: [{ text: prompt }] }],
-        ...(systemPrompt ? { system: [{ text: systemPrompt }] } : {}),
-        inferenceConfig: { maxTokens: 1024, temperature: 0.3 },
+        model: "openai.gpt-oss-120b",
+        messages: [
+          ...(systemPrompt ? [{ role: "system" as const, content: systemPrompt }] : []),
+          { role: "user" as const, content: prompt },
+        ],
+        max_tokens: 1024,
+        temperature: 0.3,
       }),
     }
   );
@@ -76,7 +80,7 @@ async function callBedrock(prompt: string, systemPrompt?: string): Promise<strin
     throw new Error(`Bedrock error ${response.status}: ${error}`);
   }
   const data = await response.json();
-  return data.output?.message?.content?.[0]?.text ?? "";
+  return data.choices?.[0]?.message?.content ?? data.choices?.[0]?.message?.reasoning ?? "";
 }
 
 async function callGemini(prompt: string, systemPrompt?: string): Promise<string> {

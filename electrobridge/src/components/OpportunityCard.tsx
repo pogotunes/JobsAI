@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { MapPin, Currency, Bookmark, ExternalLink, Heart } from "lucide-react";
 import type { Opportunity } from "@/types";
@@ -8,6 +9,8 @@ import DeadlineCountdown from "./DeadlineCountdown";
 import { cn, getDaysAgo, isNew } from "@/lib/utils";
 import ShareButtons from "./ShareButtons";
 import VerificationBadge from "./VerificationBadge";
+import { createClient } from "@/lib/supabase/client";
+import { toast } from "sonner";
 
 interface OpportunityCardProps {
   opportunity: Opportunity;
@@ -45,7 +48,7 @@ function getInitials(name: string): string {
     .toUpperCase();
 }
 
-function getBookmarks(): string[] {
+function getLocalBookmarks(): string[] {
   if (typeof window === "undefined") return [];
   try {
     const stored = localStorage.getItem("electrobridge_bookmarks");
@@ -55,28 +58,60 @@ function getBookmarks(): string[] {
   }
 }
 
-function toggleBookmark(id: string): boolean {
-  const bookmarks = getBookmarks();
-  const idx = bookmarks.indexOf(id);
-  if (idx === -1) {
-    bookmarks.push(id);
-    localStorage.setItem("electrobridge_bookmarks", JSON.stringify(bookmarks));
-    return true;
-  } else {
-    bookmarks.splice(idx, 1);
-    localStorage.setItem("electrobridge_bookmarks", JSON.stringify(bookmarks));
-    return false;
-  }
+function setLocalBookmarks(ids: string[]) {
+  localStorage.setItem("electrobridge_bookmarks", JSON.stringify(ids));
 }
 
 export default function OpportunityCard({ opportunity }: OpportunityCardProps) {
-  const isBookmarked = getBookmarks().includes(opportunity.id!);
+  const oppId = opportunity.id!;
+  const [isBookmarked, setIsBookmarked] = useState(false);
+  const [userId, setUserId] = useState<string | null>(null);
   const linkUnavailable = opportunity.verification_status === "link_unavailable" || opportunity.verification_status === "expired";
 
-  const handleBookmark = (e: React.MouseEvent) => {
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth.getUser().then(async ({ data }) => {
+      if (data?.user) {
+        setUserId(data.user.id);
+        const { data: saved } = await supabase
+          .from("saved_opportunities")
+          .select("id")
+          .eq("user_id", data.user.id)
+          .eq("opportunity_id", oppId)
+          .maybeSingle();
+        setIsBookmarked(!!saved);
+      } else {
+        setIsBookmarked(getLocalBookmarks().includes(oppId));
+      }
+    });
+  }, [oppId]);
+
+  const handleBookmark = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    toggleBookmark(opportunity.id!);
+    const supabase = createClient();
+    if (userId) {
+      if (isBookmarked) {
+        await supabase.from("saved_opportunities").delete().eq("user_id", userId).eq("opportunity_id", oppId);
+        setIsBookmarked(false);
+      } else {
+        await supabase.from("saved_opportunities").insert({ user_id: userId, opportunity_id: oppId });
+        setIsBookmarked(true);
+      }
+    } else {
+      const bookmarks = getLocalBookmarks();
+      const idx = bookmarks.indexOf(oppId);
+      if (idx === -1) {
+        bookmarks.push(oppId);
+        setLocalBookmarks(bookmarks);
+        setIsBookmarked(true);
+      } else {
+        bookmarks.splice(idx, 1);
+        setLocalBookmarks(bookmarks);
+        setIsBookmarked(false);
+      }
+      toast.info("Sign in to sync your saved opportunities across devices");
+    }
   };
 
   return (

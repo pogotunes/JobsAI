@@ -1,6 +1,8 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { ExternalLink, ShieldAlert } from "lucide-react";
+import { createClient } from "@/lib/supabase/client";
 
 interface ApplyButtonProps {
   applyLink: string;
@@ -10,7 +12,15 @@ interface ApplyButtonProps {
 }
 
 export default function ApplyButton({ applyLink, opportunityId, verificationStatus, officialPageUrl }: ApplyButtonProps) {
+  const [userId, setUserId] = useState<string | null>(null);
   const isUnavailable = verificationStatus === "link_unavailable" || verificationStatus === "expired";
+
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth.getUser().then(({ data }) => {
+      if (data?.user) setUserId(data.user.id);
+    });
+  }, []);
 
   const handleClick = async () => {
     try {
@@ -19,6 +29,22 @@ export default function ApplyButton({ applyLink, opportunityId, verificationStat
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ opportunity_id: opportunityId }),
       });
+      if (userId) {
+        const supabase = createClient();
+        const { data: existing } = await supabase
+          .from("applications")
+          .select("id")
+          .eq("user_id", userId)
+          .eq("opportunity_id", opportunityId)
+          .maybeSingle();
+        if (!existing) {
+          await supabase.from("applications").insert({
+            user_id: userId,
+            opportunity_id: opportunityId,
+            status: "applied",
+          });
+        }
+      }
     } catch {}
     if (!isUnavailable) {
       window.open(applyLink, "_blank", "noopener noreferrer");
